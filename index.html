@@ -49,39 +49,48 @@
       position: relative;
     }
 
-    /* Compact Top HUD */
+    /* Top Power Bar HUD */
     .hud {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr auto;
-      gap: 5px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
       flex: 0 0 auto;
     }
 
-    .stat-box {
+    .power-bar-container {
+      flex: 1;
+      height: 26px;
       background: var(--panel-bg);
-      border: 1px solid var(--stone-border);
-      border-radius: 9px;
-      padding: 4px 6px;
-      text-align: center;
+      border: 2px solid var(--stone-border);
+      border-radius: 999px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.6);
+    }
+
+    .power-bar-fill {
+      height: 100%;
+      width: 100%;
+      background: linear-gradient(90deg, #c98a2c 0%, #ffd97d 100%);
+      border-radius: 999px;
+      transition: width 0.15s ease-out, background 0.25s ease;
+    }
+
+    .power-bar-fill.low {
+      background: linear-gradient(90deg, #b82d2d 0%, #ff6b6b 100%);
+    }
+
+    .power-bar-text {
+      position: absolute;
+      inset: 0;
       display: flex;
-      flex-direction: column;
+      align-items: center;
       justify-content: center;
-    }
-
-    .stat-label {
-      font-size: 9px;
-      color: var(--text-muted);
-    }
-
-    .stat-value {
-      font-size: 14px;
+      font-size: 12px;
       font-weight: 800;
-      color: var(--gold-bright);
-      line-height: 1.15;
-    }
-
-    .stat-value.score-low {
-      color: var(--danger);
+      color: #fff8e7;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.85);
+      pointer-events: none;
     }
 
     .icon-btn {
@@ -90,6 +99,7 @@
       border-radius: 9px;
       color: var(--gold);
       width: 38px;
+      height: 32px;
       font-size: 17px;
       cursor: pointer;
       display: flex;
@@ -417,19 +427,11 @@
 </head>
 <body>
   <div class="app">
-    <!-- Top HUD -->
+    <!-- Top Power Bar HUD -->
     <div class="hud">
-      <div class="stat-box">
-        <span class="stat-label">หลุมขุดค้น</span>
-        <span class="stat-value" id="stageDisplay">ด่าน 1</span>
-      </div>
-      <div class="stat-box">
-        <span class="stat-label">คะแนนด่านนี้</span>
-        <span class="stat-value" id="stageScoreDisplay">1,000</span>
-      </div>
-      <div class="stat-box">
-        <span class="stat-label">คะแนนรวม</span>
-        <span class="stat-value" id="totalScoreDisplay">0</span>
+      <div class="power-bar-container">
+        <div class="power-bar-fill" id="powerBarFill"></div>
+        <div class="power-bar-text" id="powerBarText">1,000</div>
       </div>
       <button class="icon-btn" id="soundBtn" title="เปิด/ปิดเสียง">🔊</button>
     </div>
@@ -484,8 +486,9 @@
     // 1. Game Configuration & State
     // ==========================================
     const MAX_STAGE_SCORE = 1000;
-    const MAX_SAND_PENALTY = 800; // ปัดเกลี้ยง 100% หักสูงสุด 800 (เหลือติดตัว 200)
-    const WRONG_GUESS_PENALTY = 200; // ทายผิด 1 ครั้ง หักฮวบ 200
+    const SANDSTORM_THRESHOLD = 800; // คะแนนลดถึง 800 พายุทรายพัดเริ่มใหม่
+    const MAX_SAND_PENALTY = 800;    // ปัดทรายลดคะแนนตามสัดส่วน
+    const WRONG_GUESS_PENALTY = 80;  // ตอบผิด 1 ครั้ง ลด 80 คะแนน
     const BRUSH_RADIUS = 24;
 
     const state = {
@@ -517,9 +520,8 @@
     const sandCtx = sandCanvas.getContext('2d', { willReadFrequently: true });
     const fxCtx = fxCanvas.getContext('2d');
 
-    const stageDisplay = document.getElementById('stageDisplay');
-    const stageScoreDisplay = document.getElementById('stageScoreDisplay');
-    const totalScoreDisplay = document.getElementById('totalScoreDisplay');
+    const powerBarFill = document.getElementById('powerBarFill');
+    const powerBarText = document.getElementById('powerBarText');
     const sandPercentDisplay = document.getElementById('sandPercentDisplay');
     const digitBadge = document.getElementById('digitBadge');
     const slotsWrap = document.getElementById('slotsWrap');
@@ -999,9 +1001,6 @@
     }
 
     function startStage(isNewStage = true) {
-      if (isNewStage) {
-        stageDisplay.textContent = `ด่าน ${state.stage}`;
-      }
       state.digitCount = getDigitCountForStage(state.stage);
       state.enteredDigits = [];
       state.clearedPercent = 0;
@@ -1087,15 +1086,19 @@
       state.stageScore = Math.max(0, MAX_STAGE_SCORE - sandPenalty - wrongPenalty);
       updateHUD();
 
-      if (state.stageScore <= 0 && !state.isLocked) {
+      if (state.stageScore <= SANDSTORM_THRESHOLD && !state.isLocked) {
         triggerSandstormReset();
       }
     }
 
     function updateHUD() {
-      stageScoreDisplay.textContent = state.stageScore.toLocaleString();
-      stageScoreDisplay.classList.toggle('score-low', state.stageScore <= 250);
-      totalScoreDisplay.textContent = state.totalScore.toLocaleString();
+      const usableRange = MAX_STAGE_SCORE - SANDSTORM_THRESHOLD;
+      const remaining = Math.max(0, state.stageScore - SANDSTORM_THRESHOLD);
+      const barPercent = Math.min(100, (remaining / usableRange) * 100);
+
+      powerBarFill.style.width = `${barPercent}%`;
+      powerBarFill.classList.toggle('low', barPercent <= 35);
+      powerBarText.textContent = `${state.stageScore.toLocaleString()}`;
       sandPercentDisplay.textContent = `เปิดทราย ${Math.round(state.clearedPercent)}%`;
     }
 
@@ -1142,7 +1145,7 @@
     sandCanvas.addEventListener('pointercancel', endBrushing);
 
     // ==========================================
-    // 5. Sandstorm Reset (When Score Hits 0)
+    // 5. Sandstorm Reset (When Score Hits 800)
     // ==========================================
     function triggerSandstormReset() {
       state.isLocked = true;
@@ -1159,7 +1162,7 @@
 
       const answerStr = state.targetDigits.join(' - ');
       state.windActive = true;
-      stormText.textContent = `🌪️ คะแนนหมด! เฉลยคือ [ ${answerStr} ]`;
+      stormText.textContent = `🌪️ พลังหมด! เฉลยคือ [ ${answerStr} ]`;
       stormBanner.classList.add('show');
       setStatus(`พายุทรายพัดเฉลยเลข ${answerStr} กำลังสุ่มใหม่...`, 'error');
 
@@ -1214,7 +1217,6 @@
     function submitGuess() {
       if (state.isLocked || state.enteredDigits.length !== state.digitCount) return;
 
-      // ตรวจคำตอบแบบไม่สนลำดับ (เรียงจากน้อยไปมากแล้วเทียบกัน)
       const userSorted = [...state.enteredDigits].sort().join('');
       const targetSorted = [...state.targetDigits].sort().join('');
 
@@ -1241,10 +1243,10 @@
     function showWinModal(earned) {
       let stars = '⭐';
       let rank = 'ระดับ: นักสำรวจฝึกหัด';
-      if (earned >= 800) {
+      if (earned >= 930) {
         stars = '⭐⭐⭐';
         rank = 'ระดับ: Museum Grade (สมบูรณ์แบบ!)';
-      } else if (earned >= 500) {
+      } else if (earned >= 860) {
         stars = '⭐⭐';
         rank = 'ระดับ: นักโบราณคดีมืออาชีพ';
       }
