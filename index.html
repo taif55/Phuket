@@ -494,7 +494,8 @@
       stageScore: MAX_STAGE_SCORE,
       digitCount: 2,          // 2 หรือ 3 หลัก
       targetDigits: [],       // เช่น ['4', '7'] หรือ ['1', '8', '5']
-      placedItems: [],        // เก็บตำแหน่ง/ขนาด/องศา เผื่อ resize
+      placedItems: [],        // ตำแหน่ง/ขนาด/องศา ของเลขจริง
+      decoyItems: [],         // ตำแหน่ง/ขนาด/องศา ของเศษเลขแตกหักหลอก
       enteredDigits: [],      // ตัวเลขที่ผู้เล่นกดเข้ามา
       clearedPercent: 0,
       wrongGuesses: 0,
@@ -672,7 +673,6 @@
     function getDigitCountForStage(stage) {
       if (stage <= 2) return 2;
       if (stage === 3) return 3;
-      // ด่าน 4 ขึ้นไป สลับระหว่าง 2 หลัก กับ 3 หลัก (เน้น 3 หลักเยอะขึ้น)
       return stage % 3 === 1 ? 2 : 3;
     }
 
@@ -686,17 +686,16 @@
         '"Trebuchet MS", sans-serif'
       ];
 
+      // 1. สุ่มตัวเลขจริง (สมบูรณ์ + มีขีดเส้นใต้)
       for (let i = 0; i < count; i++) {
         const d = String(Math.floor(Math.random() * 10));
         digits.push(d);
 
-        // สุ่มขนาด: บางตัวเล็ก บางตัวใหญ่ชัดเจน
         const minSize = Math.min(boardW, boardH) * 0.20;
         const maxSize = Math.min(boardW, boardH) * 0.44;
         const fontSize = Math.floor(minSize + Math.random() * (maxSize - minSize));
         const radius = fontSize * 0.58;
 
-        // หาตำแหน่งที่ไม่ซ้อนทับกับตัวก่อนหน้า
         let bestX = boardW / 2;
         let bestY = boardH / 2;
         const padX = Math.max(46, radius + 16);
@@ -721,7 +720,6 @@
           }
         }
 
-        // สุ่มองศาตะแคง (-65° ถึง +65°)
         const angle = ((Math.random() * 130) - 65) * (Math.PI / 180);
         const font = fonts[Math.floor(Math.random() * fonts.length)];
 
@@ -738,6 +736,61 @@
 
       state.targetDigits = digits;
       state.placedItems = placed;
+
+      // 2. สุ่มเศษเลขแตกหักหลอกสายตา (เริ่มตั้งแต่ด่าน 2 เป็นต้นไป)
+      const decoys = [];
+      const decoyCount = state.stage < 2 ? 0 : Math.min(4, state.stage - 1);
+      const allPlaced = [...placed];
+
+      for (let i = 0; i < decoyCount; i++) {
+        const d = String(Math.floor(Math.random() * 10));
+        const minSize = Math.min(boardW, boardH) * 0.22;
+        const maxSize = Math.min(boardW, boardH) * 0.40;
+        const fontSize = Math.floor(minSize + Math.random() * (maxSize - minSize));
+        const radius = fontSize * 0.55;
+
+        let bestX = boardW / 2;
+        let bestY = boardH / 2;
+        let foundSpot = false;
+        const padX = Math.max(44, radius + 14);
+        const padY = Math.max(50, radius + 20);
+
+        for (let attempt = 0; attempt < 50; attempt++) {
+          const rx = padX + Math.random() * Math.max(10, boardW - padX * 2);
+          const ry = padY + Math.random() * Math.max(10, boardH - padY * 2);
+
+          let overlaps = false;
+          for (const other of allPlaced) {
+            const dist = Math.hypot(rx - other.x, ry - other.y);
+            if (dist < (radius + other.radius) * 0.95) {
+              overlaps = true;
+              break;
+            }
+          }
+          if (!overlaps) {
+            bestX = rx;
+            bestY = ry;
+            foundSpot = true;
+            break;
+          }
+        }
+
+        if (foundSpot) {
+          const item = {
+            char: d,
+            x: bestX,
+            y: bestY,
+            fontSize,
+            radius,
+            angle: ((Math.random() * 140) - 70) * (Math.PI / 180),
+            font: fonts[Math.floor(Math.random() * fonts.length)],
+            cutAngle: Math.random() * Math.PI * 2
+          };
+          decoys.push(item);
+          allPlaced.push(item);
+        }
+      }
+      state.decoyItems = decoys;
     }
 
     function drawDecoyCracksAndPatterns(stage) {
@@ -816,12 +869,66 @@
       // เส้นรอยแตกหลอกสายตา
       drawDecoyCracksAndPatterns(state.stage);
 
+      // วาดเศษเลขแตกหักหลอกสายตา (แหว่งครึ่งตัว + ไม่มีขีดเส้นใต้)
+      if (state.decoyItems && state.decoyItems.length > 0) {
+        for (const item of state.decoyItems) {
+          stoneCtx.save();
+          stoneCtx.translate(item.x, item.y);
+          stoneCtx.rotate(item.angle);
+
+          // สร้างแนวรอยแตกหยักเพื่อตัดตัวเลขให้แหว่งหายไปครึ่งหนึ่ง
+          stoneCtx.save();
+          stoneCtx.rotate(item.cutAngle);
+          const span = item.fontSize * 0.9;
+          stoneCtx.beginPath();
+          stoneCtx.moveTo(-span, -span);
+          stoneCtx.lineTo(span, -span);
+          stoneCtx.lineTo(span, 2);
+          stoneCtx.lineTo(span * 0.35, -7);
+          stoneCtx.lineTo(0, 6);
+          stoneCtx.lineTo(-span * 0.35, -5);
+          stoneCtx.lineTo(-span, 4);
+          stoneCtx.closePath();
+          stoneCtx.clip();
+
+          // หมุนกลับเพื่อวาดตัวเลขในพื้นที่ที่ถูกตัดแหว่ง
+          stoneCtx.rotate(-item.cutAngle);
+          stoneCtx.font = `900 ${item.fontSize}px ${item.font}`;
+          stoneCtx.textAlign = 'center';
+          stoneCtx.textBaseline = 'middle';
+
+          stoneCtx.fillStyle = 'rgba(255, 232, 185, 0.20)';
+          stoneCtx.fillText(item.char, 2, 2);
+
+          stoneCtx.fillStyle = 'rgba(32, 22, 13, 0.85)';
+          stoneCtx.fillText(item.char, 0, 0);
+          stoneCtx.restore();
+
+          // วาดเส้นรอยหินกะเทาะตรงขอบที่แตกหัก
+          stoneCtx.rotate(item.cutAngle);
+          stoneCtx.beginPath();
+          stoneCtx.moveTo(-span * 0.7, 4);
+          stoneCtx.lineTo(-span * 0.35, -5);
+          stoneCtx.lineTo(0, 6);
+          stoneCtx.lineTo(span * 0.35, -7);
+          stoneCtx.lineTo(span * 0.7, 2);
+          stoneCtx.strokeStyle = 'rgba(255, 232, 185, 0.25)';
+          stoneCtx.lineWidth = 3;
+          stoneCtx.stroke();
+          stoneCtx.strokeStyle = 'rgba(28, 19, 11, 0.75)';
+          stoneCtx.lineWidth = 1.5;
+          stoneCtx.stroke();
+
+          stoneCtx.restore();
+        }
+      }
+
       // กรอบศิลาจารึก
       stoneCtx.strokeStyle = 'rgba(255, 224, 166, 0.16)';
       stoneCtx.lineWidth = 2;
       stoneCtx.strokeRect(10, 10, boardW - 20, boardH - 20);
 
-      // วาดตัวเลขปริศนาแต่ละตัวตามตำแหน่ง ขนาด และองศาที่สุ่มไว้
+      // วาดตัวเลขปริศนาจริง (สมบูรณ์ + มีขีดเส้นใต้กำกับฐาน)
       for (const item of state.placedItems) {
         stoneCtx.save();
         stoneCtx.translate(item.x, item.y);
@@ -963,7 +1070,7 @@
       const imgData = sandCtx.getImageData(0, 0, boardW, boardH).data;
       let cleared = 0;
       let total = 0;
-      const step = 6; // fast sampling for large canvas
+      const step = 6;
 
       for (let i = 3; i < imgData.length; i += 4 * step) {
         total++;
