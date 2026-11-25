@@ -1,0 +1,1107 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Sand Relic 00-99 | นักโบราณคดีปัดทรายทายเลข</title>
+  <style>
+    :root {
+      --bg-dark: #1c1510;
+      --panel-bg: #2a2018;
+      --gold: #e5b85c;
+      --gold-bright: #ffd97d;
+      --sand-light: #e7c98f;
+      --sand-dark: #b98b48;
+      --stone-border: #5a4632;
+      --danger: #e05252;
+      --success: #4cc97a;
+      --text-main: #f5ebd6;
+      --text-muted: #b8a386;
+    }
+
+    * {
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100dvh;
+      overflow: hidden;
+      background: radial-gradient(circle at top, #2f2318 0%, var(--bg-dark) 100%);
+      color: var(--text-main);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      justify-content: center;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 480px;
+      height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      padding: 8px 10px 10px;
+      gap: 7px;
+      position: relative;
+    }
+
+    /* Header HUD */
+    .hud {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr auto;
+      gap: 6px;
+      align-items: stretch;
+    }
+
+    .stat-box {
+      background: var(--panel-bg);
+      border: 1px solid var(--stone-border);
+      border-radius: 10px;
+      padding: 5px 8px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .stat-label {
+      font-size: 10px;
+      color: var(--text-muted);
+      letter-spacing: 0.3px;
+    }
+
+    .stat-value {
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--gold-bright);
+      line-height: 1.2;
+    }
+
+    .stat-value.score-low {
+      color: var(--danger);
+    }
+
+    .icon-btn {
+      background: var(--panel-bg);
+      border: 1px solid var(--stone-border);
+      border-radius: 10px;
+      color: var(--gold);
+      width: 40px;
+      font-size: 18px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .icon-btn:active {
+      transform: scale(0.94);
+    }
+
+    /* Excavation Board */
+    .board-wrapper {
+      position: relative;
+      width: 100%;
+      flex: 1 1 auto;
+      min-height: 170px;
+      max-height: 280px;
+      border-radius: 14px;
+      border: 3px solid var(--stone-border);
+      box-shadow: inset 0 0 25px rgba(0, 0, 0, 0.7), 0 6px 18px rgba(0, 0, 0, 0.45);
+      overflow: hidden;
+      background: #463a2c;
+    }
+
+    .board-wrapper canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    #sandCanvas {
+      touch-action: none;
+      cursor: crosshair;
+    }
+
+    #fxCanvas {
+      pointer-events: none;
+    }
+
+    .board-badge {
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      background: rgba(28, 21, 16, 0.78);
+      border: 1px solid rgba(229, 184, 92, 0.45);
+      color: var(--sand-light);
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      pointer-events: none;
+      backdrop-filter: blur(2px);
+    }
+
+    .sand-meter {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: rgba(28, 21, 16, 0.78);
+      border: 1px solid rgba(229, 184, 92, 0.45);
+      color: var(--gold-bright);
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 999px;
+      pointer-events: none;
+    }
+
+    .storm-banner {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: rgba(48, 34, 18, 0.35);
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.25s ease;
+      text-align: center;
+      padding: 12px;
+    }
+
+    .storm-banner.show {
+      opacity: 1;
+    }
+
+    .storm-banner .title {
+      background: rgba(28, 21, 16, 0.9);
+      border: 1px solid var(--gold);
+      color: var(--gold-bright);
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-weight: 800;
+      font-size: 14px;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
+    }
+
+    /* Action Bar */
+    .action-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--panel-bg);
+      border: 1px solid var(--stone-border);
+      border-radius: 12px;
+      padding: 6px 8px;
+    }
+
+    .status-text {
+      flex: 1;
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.25;
+      min-height: 30px;
+      display: flex;
+      align-items: center;
+    }
+
+    .status-text.error {
+      color: #ff8080;
+      font-weight: 700;
+    }
+
+    .status-text.highlight {
+      color: var(--gold-bright);
+      font-weight: 700;
+    }
+
+    .confirm-btn {
+      background: linear-gradient(180deg, #e5b85c 0%, #b5802b 100%);
+      color: #1f160c;
+      border: none;
+      border-radius: 10px;
+      padding: 9px 14px;
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+      white-space: nowrap;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.35);
+      transition: transform 0.1s ease, opacity 0.15s ease;
+    }
+
+    .confirm-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .confirm-btn:not(:disabled):active {
+      transform: scale(0.96);
+    }
+
+    /* 00-99 Keypad */
+    .keypad {
+      display: grid;
+      grid-template-columns: repeat(10, 1fr);
+      gap: 3px;
+      background: var(--panel-bg);
+      border: 1px solid var(--stone-border);
+      border-radius: 12px;
+      padding: 6px;
+      flex: 0 0 auto;
+    }
+
+    .key-btn {
+      aspect-ratio: 1.15 / 1;
+      border: 1px solid #4a3929;
+      border-radius: 6px;
+      background: #36291e;
+      color: var(--text-main);
+      font-size: 12px;
+      font-weight: 700;
+      padding: 0;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.1s ease, transform 0.08s ease;
+    }
+
+    .key-btn:active:not(:disabled) {
+      transform: scale(0.9);
+    }
+
+    .key-btn.selected {
+      background: var(--gold);
+      color: #1a120a;
+      border-color: var(--gold-bright);
+      box-shadow: 0 0 8px rgba(255, 217, 125, 0.65);
+    }
+
+    .key-btn.wrong {
+      background: #231a14;
+      color: #6b5645;
+      border-color: #2f231a;
+      text-decoration: line-through;
+      cursor: not-allowed;
+      opacity: 0.55;
+    }
+
+    .key-btn.correct {
+      background: var(--success);
+      color: #0d2415;
+      border-color: #93f0b3;
+    }
+
+    /* Win Modal */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 10, 6, 0.82);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 50;
+      backdrop-filter: blur(3px);
+    }
+
+    .modal-overlay.show {
+      display: flex;
+    }
+
+    .modal-card {
+      width: 100%;
+      max-width: 340px;
+      background: linear-gradient(180deg, #35281c 0%, #221912 100%);
+      border: 2px solid var(--gold);
+      border-radius: 18px;
+      padding: 22px 18px;
+      text-align: center;
+      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.7);
+    }
+
+    .modal-stars {
+      font-size: 32px;
+      letter-spacing: 6px;
+      margin-bottom: 6px;
+    }
+
+    .modal-title {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--gold-bright);
+      margin: 0 0 6px;
+    }
+
+    .modal-sub {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin: 0 0 14px;
+    }
+
+    .modal-metrics {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .metric-item {
+      background: rgba(0, 0, 0, 0.25);
+      border: 1px solid var(--stone-border);
+      border-radius: 10px;
+      padding: 8px;
+    }
+
+    .metric-item small {
+      display: block;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .metric-item strong {
+      font-size: 18px;
+      color: var(--text-main);
+    }
+
+    .next-btn {
+      width: 100%;
+      background: linear-gradient(180deg, #f0c76e 0%, #c0882e 100%);
+      color: #1c1309;
+      border: none;
+      border-radius: 12px;
+      padding: 12px;
+      font-size: 15px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .next-btn:active {
+      transform: scale(0.97);
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <!-- Top HUD -->
+    <div class="hud">
+      <div class="stat-box">
+        <span class="stat-label">หลุมขุดค้น</span>
+        <span class="stat-value" id="stageDisplay">ด่าน 1</span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-label">คะแนนด่านนี้</span>
+        <span class="stat-value" id="stageScoreDisplay">1,000</span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-label">คะแนนรวม</span>
+        <span class="stat-value" id="totalScoreDisplay">0</span>
+      </div>
+      <button class="icon-btn" id="soundBtn" title="เปิด/ปิดเสียง">🔊</button>
+    </div>
+
+    <!-- Excavation Board -->
+    <div class="board-wrapper" id="boardWrapper">
+      <canvas id="stoneCanvas"></canvas>
+      <canvas id="sandCanvas"></canvas>
+      <canvas id="fxCanvas"></canvas>
+      <div class="board-badge" id="zoneBadge">🏺 ทะเลทรายอียิปต์</div>
+      <div class="sand-meter" id="sandPercentDisplay">เปิดทราย 0%</div>
+      <div class="storm-banner" id="stormBanner">
+        <div class="title" id="stormText">🌪️ พายุทะเลทราย!</div>
+      </div>
+    </div>
+
+    <!-- Action Bar -->
+    <div class="action-bar">
+      <div class="status-text" id="statusText">ใช้นิ้วปัดทรายด้านบน แล้วเลือกเลข 00-99</div>
+      <button class="confirm-btn" id="confirmBtn" disabled>ยืนยัน</button>
+    </div>
+
+    <!-- 00-99 Keypad -->
+    <div class="keypad" id="keypad"></div>
+  </div>
+
+  <!-- Stage Clear Modal -->
+  <div class="modal-overlay" id="winModal">
+    <div class="modal-card">
+      <div class="modal-stars" id="modalStars">⭐⭐⭐</div>
+      <h2 class="modal-title" id="modalTitle">ถอดรหัสศิลาสำเร็จ!</h2>
+      <p class="modal-sub" id="modalSub">ระดับความสมบูรณ์: Museum Grade</p>
+      <div class="modal-metrics">
+        <div class="metric-item">
+          <small>คะแนนที่ได้รับ</small>
+          <strong id="modalEarned">+850</strong>
+        </div>
+        <div class="metric-item">
+          <small>เปิดทรายไป</small>
+          <strong id="modalSand">15%</strong>
+        </div>
+      </div>
+      <button class="next-btn" id="nextStageBtn">ขุดค้นด่านต่อไป →</button>
+    </div>
+  </div>
+
+  <script>
+    // ==========================================
+    // 1. Game Configuration & State
+    // ==========================================
+    const MAX_STAGE_SCORE = 1000;
+    const MAX_SAND_PENALTY = 800; // ปัดเกลี้ยง 100% หักสูงสุด 800 (เหลือติดตัว 200)
+    const WRONG_GUESS_PENALTY = 200; // กดผิด 1 ครั้ง หักฮวบ 200
+    const BRUSH_RADIUS = 22;
+
+    const state = {
+      stage: 1,
+      totalScore: 0,
+      stageScore: MAX_STAGE_SCORE,
+      targetNumber: '00',
+      clearedPercent: 0,
+      wrongGuesses: 0,
+      selectedNumber: null,
+      eliminated: new Set(),
+      shuffleBag: [],
+      isBrushing: false,
+      isLocked: false,
+      soundEnabled: true,
+      lastPointer: null,
+      lastCalcTime: 0,
+      particles: [],
+      windActive: false
+    };
+
+    // DOM Elements
+    const boardWrapper = document.getElementById('boardWrapper');
+    const stoneCanvas = document.getElementById('stoneCanvas');
+    const sandCanvas = document.getElementById('sandCanvas');
+    const fxCanvas = document.getElementById('fxCanvas');
+    const stoneCtx = stoneCanvas.getContext('2d');
+    const sandCtx = sandCanvas.getContext('2d', { willReadFrequently: true });
+    const fxCtx = fxCanvas.getContext('2d');
+
+    const stageDisplay = document.getElementById('stageDisplay');
+    const stageScoreDisplay = document.getElementById('stageScoreDisplay');
+    const totalScoreDisplay = document.getElementById('totalScoreDisplay');
+    const sandPercentDisplay = document.getElementById('sandPercentDisplay');
+    const zoneBadge = document.getElementById('zoneBadge');
+    const statusText = document.getElementById('statusText');
+    const confirmBtn = document.getElementById('confirmBtn');
+    const keypadEl = document.getElementById('keypad');
+    const soundBtn = document.getElementById('soundBtn');
+    const stormBanner = document.getElementById('stormBanner');
+    const stormText = document.getElementById('stormText');
+    const winModal = document.getElementById('winModal');
+    const modalStars = document.getElementById('modalStars');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalSub = document.getElementById('modalSub');
+    const modalEarned = document.getElementById('modalEarned');
+    const modalSand = document.getElementById('modalSand');
+    const nextStageBtn = document.getElementById('nextStageBtn');
+
+    let boardW = 360;
+    let boardH = 220;
+
+    // ==========================================
+    // 2. Web Audio API (ASMR Sand & FX Synth)
+    // ==========================================
+    let audioCtx = null;
+    let noiseBuffer = null;
+    let brushGain = null;
+    let brushFilter = null;
+    let brushSource = null;
+
+    function initAudio() {
+      if (audioCtx) {
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        return;
+      }
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+      if (!AudioContextClass) return;
+      audioCtx = new AudioContextClass();
+
+      // Create 2 seconds of white noise buffer for sand & wind
+      const bufferSize = audioCtx.sampleRate * 2;
+      noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+      const data = noiseBuffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) {
+        data[i] = Math.random() * 2 - 1;
+      }
+
+      // Setup continuous sand brush node (muted until moving)
+      brushSource = audioCtx.createBufferSource();
+      brushSource.buffer = noiseBuffer;
+      brushSource.loop = true;
+
+      brushFilter = audioCtx.createBiquadFilter();
+      brushFilter.type = 'bandpass';
+      brushFilter.frequency.value = 1800;
+      brushFilter.Q.value = 0.9;
+
+      brushGain = audioCtx.createGain();
+      brushGain.gain.value = 0;
+
+      brushSource.connect(brushFilter);
+      brushFilter.connect(brushGain);
+      brushGain.connect(audioCtx.destination);
+      brushSource.start();
+    }
+
+    function updateBrushSound(speed) {
+      if (!audioCtx || !brushGain || !state.soundEnabled) return;
+      const now = audioCtx.currentTime;
+      const targetVol = Math.min(0.18, speed * 0.008);
+      const targetFreq = 1200 + Math.min(1800, speed * 45);
+      brushGain.gain.setTargetAtTime(targetVol, now, 0.03);
+      brushFilter.frequency.setTargetAtTime(targetFreq, now, 0.04);
+    }
+
+    function stopBrushSound() {
+      if (!audioCtx || !brushGain) return;
+      brushGain.gain.setTargetAtTime(0, audioCtx.currentTime, 0.04);
+    }
+
+    function playTone(freq, duration, type = 'sine', volume = 0.12) {
+      if (!state.soundEnabled) return;
+      initAudio();
+      if (!audioCtx) return;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = type;
+      osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+      gain.gain.setValueAtTime(volume, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + duration);
+    }
+
+    function playWrongSound() {
+      playTone(170, 0.18, 'sawtooth', 0.12);
+      setTimeout(() => playTone(125, 0.24, 'sawtooth', 0.1), 90);
+      if (navigator.vibrate) navigator.vibrate([40, 30, 40]);
+    }
+
+    function playWinSound() {
+      const notes = [523.25, 659.25, 783.99, 1046.5];
+      notes.forEach((n, idx) => {
+        setTimeout(() => playTone(n, 0.25, 'triangle', 0.14), idx * 90);
+      });
+      if (navigator.vibrate) navigator.vibrate([30, 40, 60]);
+    }
+
+    function playSandstormSound() {
+      if (!state.soundEnabled) return;
+      initAudio();
+      if (!audioCtx || !noiseBuffer) return;
+
+      const src = audioCtx.createBufferSource();
+      src.buffer = noiseBuffer;
+      src.loop = true;
+
+      const filter = audioCtx.createBiquadFilter();
+      filter.type = 'bandpass';
+      filter.Q.value = 1.6;
+      filter.frequency.setValueAtTime(300, audioCtx.currentTime);
+      filter.frequency.exponentialRampToValueAtTime(1400, audioCtx.currentTime + 1.0);
+      filter.frequency.exponentialRampToValueAtTime(350, audioCtx.currentTime + 2.4);
+
+      const gain = audioCtx.createGain();
+      gain.gain.setValueAtTime(0.001, audioCtx.currentTime);
+      gain.gain.linearRampToValueAtTime(0.24, audioCtx.currentTime + 0.5);
+      gain.gain.linearRampToValueAtTime(0.001, audioCtx.currentTime + 2.5);
+
+      src.connect(filter);
+      filter.connect(gain);
+      gain.connect(audioCtx.destination);
+      src.start();
+      src.stop(audioCtx.currentTime + 2.55);
+    }
+
+    // ==========================================
+    // 3. Shuffle Bag & Stage Setup
+    // ==========================================
+    function nextFromShuffleBag() {
+      if (state.shuffleBag.length === 0) {
+        state.shuffleBag = Array.from({ length: 100 }, (_, i) => String(i).padStart(2, '0'));
+        for (let i = state.shuffleBag.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [state.shuffleBag[i], state.shuffleBag[j]] = [state.shuffleBag[j], state.shuffleBag[i]];
+        }
+      }
+      return state.shuffleBag.pop();
+    }
+
+    function resizeCanvases() {
+      const rect = boardWrapper.getBoundingClientRect();
+      boardW = Math.max(280, Math.floor(rect.width));
+      boardH = Math.max(160, Math.floor(rect.height));
+
+      [stoneCanvas, sandCanvas, fxCanvas].forEach(c => {
+        c.width = boardW;
+        c.height = boardH;
+      });
+    }
+
+    function drawStoneTablet(numberStr) {
+      // Base sandstone gradient
+      const grad = stoneCtx.createLinearGradient(0, 0, boardW, boardH);
+      grad.addColorStop(0, '#6a5640');
+      grad.addColorStop(0.5, '#544331');
+      grad.addColorStop(1, '#3e3022');
+      stoneCtx.fillStyle = grad;
+      stoneCtx.fillRect(0, 0, boardW, boardH);
+
+      // Subtle stone grain speckles
+      for (let i = 0; i < 650; i++) {
+        const x = Math.random() * boardW;
+        const y = Math.random() * boardH;
+        const r = Math.random() * 1.6;
+        stoneCtx.fillStyle = Math.random() > 0.5 ? 'rgba(255,235,200,0.07)' : 'rgba(0,0,0,0.14)';
+        stoneCtx.fillRect(x, y, r, r);
+      }
+
+      // Carved border frame on the stone
+      stoneCtx.strokeStyle = 'rgba(255, 224, 166, 0.16)';
+      stoneCtx.lineWidth = 2;
+      stoneCtx.strokeRect(12, 12, boardW - 24, boardH - 24);
+
+      // Choose font style by stage progression
+      let fontFamily = 'Georgia, serif';
+      let zoneName = '🏺 ทะเลทรายอียิปต์';
+      if (state.stage >= 4 && state.stage <= 7) {
+        fontFamily = '"Courier New", monospace';
+        zoneName = '🗿 วิหารศิลาโบราณ';
+      } else if (state.stage >= 8) {
+        fontFamily = 'Impact, "Arial Black", sans-serif';
+        zoneName = '🏛️ สุสานฟาโรห์ (โหมดยาก)';
+      }
+      zoneBadge.textContent = zoneName;
+
+      // Randomize position, scale, and subtle rotation (-16° to +16°)
+      const fontSize = Math.floor(Math.min(boardW, boardH) * (0.44 + Math.random() * 0.12));
+      const padX = fontSize * 0.85;
+      const padY = fontSize * 0.65;
+      const posX = padX + Math.random() * Math.max(10, boardW - padX * 2);
+      const posY = padY + Math.random() * Math.max(10, boardH - padY * 2);
+      const angle = ((Math.random() * 32) - 16) * (Math.PI / 180);
+
+      stoneCtx.save();
+      stoneCtx.translate(posX, posY);
+      stoneCtx.rotate(angle);
+      stoneCtx.font = `900 ${fontSize}px ${fontFamily}`;
+      stoneCtx.textAlign = 'center';
+      stoneCtx.textBaseline = 'middle';
+
+      // Engraved inner-shadow illusion
+      stoneCtx.fillStyle = 'rgba(255, 232, 185, 0.28)';
+      stoneCtx.fillText(numberStr, 2, 2);
+
+      stoneCtx.fillStyle = '#241a11';
+      stoneCtx.fillText(numberStr, 0, 0);
+
+      // Subtle base underline to prevent 6/9 ambiguity
+      const textWidth = stoneCtx.measureText(numberStr).width;
+      stoneCtx.strokeStyle = '#241a11';
+      stoneCtx.lineWidth = Math.max(3, fontSize * 0.055);
+      stoneCtx.beginPath();
+      stoneCtx.moveTo(-textWidth * 0.42, fontSize * 0.44);
+      stoneCtx.lineTo(textWidth * 0.42, fontSize * 0.44);
+      stoneCtx.stroke();
+
+      stoneCtx.restore();
+    }
+
+    function fillSandLayer() {
+      sandCtx.globalCompositeOperation = 'source-over';
+      const grad = sandCtx.createLinearGradient(0, 0, boardW, boardH);
+      grad.addColorStop(0, '#e5c483');
+      grad.addColorStop(0.5, '#d3aa62');
+      grad.addColorStop(1, '#ba8c45');
+      sandCtx.fillStyle = grad;
+      sandCtx.fillRect(0, 0, boardW, boardH);
+
+      // Soft dune ripples
+      sandCtx.strokeStyle = 'rgba(255, 240, 200, 0.22)';
+      sandCtx.lineWidth = 10;
+      for (let y = 18; y < boardH; y += 34) {
+        sandCtx.beginPath();
+        sandCtx.moveTo(0, y);
+        sandCtx.bezierCurveTo(boardW * 0.33, y - 10, boardW * 0.66, y + 10, boardW, y);
+        sandCtx.stroke();
+      }
+
+      // Sand grains texture
+      for (let i = 0; i < 2400; i++) {
+        const x = Math.random() * boardW;
+        const y = Math.random() * boardH;
+        sandCtx.fillStyle = Math.random() > 0.5
+          ? 'rgba(255, 248, 225, 0.28)'
+          : 'rgba(110, 74, 24, 0.22)';
+        sandCtx.fillRect(x, y, 1.5, 1.5);
+      }
+    }
+
+    function startStage(isNewStage = true) {
+      if (isNewStage) {
+        stageDisplay.textContent = `ด่าน ${state.stage}`;
+      }
+      state.targetNumber = nextFromShuffleBag();
+      state.clearedPercent = 0;
+      state.wrongGuesses = 0;
+      state.stageScore = MAX_STAGE_SCORE;
+      state.selectedNumber = null;
+      state.eliminated.clear();
+      state.isLocked = false;
+      state.windActive = false;
+
+      stormBanner.classList.remove('show');
+      drawStoneTablet(state.targetNumber);
+      fillSandLayer();
+      resetKeypadUI();
+      updateHUD();
+      setStatus('ใช้นิ้วปัดทรายด้านบน แล้วเลือกเลข 00–99', '');
+    }
+
+    // ==========================================
+    // 4. Brushing & Percentage Calculation
+    // ==========================================
+    function getPointerPos(e) {
+      const rect = sandCanvas.getBoundingClientRect();
+      return {
+        x: (e.clientX - rect.left) * (boardW / rect.width),
+        y: (e.clientY - rect.top) * (boardH / rect.height)
+      };
+    }
+
+    function spawnSandParticles(x, y, count = 4) {
+      for (let i = 0; i < count; i++) {
+        state.particles.push({
+          x: x + (Math.random() - 0.5) * 16,
+          y: y + (Math.random() - 0.5) * 16,
+          vx: (Math.random() - 0.5) * 3.5,
+          vy: (Math.random() - 0.3) * 3.0 + 0.6,
+          size: 1.5 + Math.random() * 2.5,
+          alpha: 0.9,
+          color: Math.random() > 0.4 ? '#f2d79c' : '#c69548'
+        });
+      }
+    }
+
+    function eraseSandLine(from, to) {
+      sandCtx.save();
+      sandCtx.globalCompositeOperation = 'destination-out';
+      sandCtx.lineCap = 'round';
+      sandCtx.lineJoin = 'round';
+      sandCtx.lineWidth = BRUSH_RADIUS * 2;
+
+      sandCtx.beginPath();
+      sandCtx.moveTo(from.x, from.y);
+      sandCtx.lineTo(to.x, to.y);
+      sandCtx.stroke();
+      sandCtx.restore();
+
+      const dx = to.x - from.x;
+      const dy = to.y - from.y;
+      const dist = Math.hypot(dx, dy);
+      spawnSandParticles(to.x, to.y, Math.min(8, Math.max(2, Math.floor(dist / 4))));
+      updateBrushSound(dist);
+    }
+
+    function calculateClearedPercent() {
+      const imgData = sandCtx.getImageData(0, 0, boardW, boardH).data;
+      let cleared = 0;
+      let total = 0;
+      const step = 4; // sample every 4th pixel for smooth 60fps on mobile
+
+      for (let i = 3; i < imgData.length; i += 4 * step) {
+        total++;
+        if (imgData[i] < 40) cleared++;
+      }
+
+      state.clearedPercent = Math.min(100, (cleared / total) * 100);
+      recalculateScore();
+    }
+
+    function recalculateScore() {
+      const sandPenalty = Math.floor((state.clearedPercent / 100) * MAX_SAND_PENALTY);
+      const wrongPenalty = state.wrongGuesses * WRONG_GUESS_PENALTY;
+      state.stageScore = Math.max(0, MAX_STAGE_SCORE - sandPenalty - wrongPenalty);
+      updateHUD();
+
+      if (state.stageScore <= 0 && !state.isLocked) {
+        triggerSandstormReset();
+      }
+    }
+
+    function updateHUD() {
+      stageScoreDisplay.textContent = state.stageScore.toLocaleString();
+      stageScoreDisplay.classList.toggle('score-low', state.stageScore <= 250);
+      totalScoreDisplay.textContent = state.totalScore.toLocaleString();
+      sandPercentDisplay.textContent = `เปิดทราย ${Math.round(state.clearedPercent)}%`;
+    }
+
+    function setStatus(msg, type = '') {
+      statusText.textContent = msg;
+      statusText.className = `status-text ${type}`;
+    }
+
+    // Pointer Events on Sand Canvas
+    sandCanvas.addEventListener('pointerdown', (e) => {
+      if (state.isLocked) return;
+      initAudio();
+      sandCanvas.setPointerCapture(e.pointerId);
+      state.isBrushing = true;
+      const pos = getPointerPos(e);
+      state.lastPointer = pos;
+      eraseSandLine(pos, { x: pos.x + 0.1, y: pos.y + 0.1 });
+      calculateClearedPercent();
+    });
+
+    sandCanvas.addEventListener('pointermove', (e) => {
+      if (!state.isBrushing || state.isLocked) return;
+      const pos = getPointerPos(e);
+      if (state.lastPointer) {
+        eraseSandLine(state.lastPointer, pos);
+      }
+      state.lastPointer = pos;
+
+      const now = performance.now();
+      if (now - state.lastCalcTime > 80) {
+        state.lastCalcTime = now;
+        calculateClearedPercent();
+      }
+    });
+
+    function endBrushing() {
+      if (!state.isBrushing) return;
+      state.isBrushing = false;
+      state.lastPointer = null;
+      stopBrushSound();
+      if (!state.isLocked) calculateClearedPercent();
+    }
+
+    sandCanvas.addEventListener('pointerup', endBrushing);
+    sandCanvas.addEventListener('pointercancel', endBrushing);
+
+    // ==========================================
+    // 5. Sandstorm Reset (When Score Hits 0)
+    // ==========================================
+    function triggerSandstormReset() {
+      state.isLocked = true;
+      state.isBrushing = false;
+      stopBrushSound();
+      confirmBtn.disabled = true;
+
+      playSandstormSound();
+      if (navigator.vibrate) navigator.vibrate([80, 50, 120]);
+
+      // Blow all sand away immediately to reveal the hidden number
+      sandCtx.clearRect(0, 0, boardW, boardH);
+      state.clearedPercent = 100;
+      sandPercentDisplay.textContent = 'เปิดทราย 100%';
+
+      state.windActive = true;
+      stormText.textContent = `🌪️ คะแนนหมด! เฉลยคือ "${state.targetNumber}"`;
+      stormBanner.classList.add('show');
+      setStatus(`พายุทรายพัดเฉลยเลข ${state.targetNumber} กำลังสุ่มหลุมใหม่...`, 'error');
+
+      // Show answer for 1.7 seconds, then sweep in new sand & new number
+      setTimeout(() => {
+        stormText.textContent = '🌪️ พายุทรายพัดทับ เปลี่ยนเลขใหม่!';
+        setTimeout(() => {
+          startStage(false);
+        }, 700);
+      }, 1700);
+    }
+
+    // ==========================================
+    // 6. Keypad 00-99 & Guess Logic
+    // ==========================================
+    function buildKeypad() {
+      keypadEl.innerHTML = '';
+      for (let i = 0; i < 100; i++) {
+        const numStr = String(i).padStart(2, '0');
+        const btn = document.createElement('button');
+        btn.className = 'key-btn';
+        btn.textContent = numStr;
+        btn.dataset.num = numStr;
+        btn.addEventListener('click', () => handleKeyTap(numStr, btn));
+        keypadEl.appendChild(btn);
+      }
+    }
+
+    function resetKeypadUI() {
+      const btns = keypadEl.querySelectorAll('.key-btn');
+      btns.forEach(btn => {
+        btn.className = 'key-btn';
+        btn.disabled = false;
+      });
+      confirmBtn.disabled = true;
+      confirmBtn.textContent = 'ยืนยัน';
+    }
+
+    function handleKeyTap(numStr, btn) {
+      if (state.isLocked || state.eliminated.has(numStr)) return;
+      initAudio();
+
+      // Double-tap on already selected number submits immediately!
+      if (state.selectedNumber === numStr) {
+        submitGuess();
+        return;
+      }
+
+      playTone(480, 0.05, 'sine', 0.06);
+      keypadEl.querySelectorAll('.key-btn.selected').forEach(el => el.classList.remove('selected'));
+      btn.classList.add('selected');
+      state.selectedNumber = numStr;
+      confirmBtn.disabled = false;
+      confirmBtn.textContent = `ยืนยัน ${numStr}`;
+      setStatus(`เลือกเลข ${numStr} แล้ว (กดยืนยัน หรือแตะซ้ำเพื่อตอบ)`, 'highlight');
+    }
+
+    function submitGuess() {
+      if (state.isLocked || state.selectedNumber === null) return;
+      const guess = state.selectedNumber;
+      const btn = keypadEl.querySelector(`.key-btn[data-num="${guess}"]`);
+
+      if (guess === state.targetNumber) {
+        // Correct!
+        state.isLocked = true;
+        if (btn) btn.classList.add('correct');
+        sandCtx.clearRect(0, 0, boardW, boardH);
+        playWinSound();
+
+        const earned = state.stageScore;
+        state.totalScore += earned;
+        updateHUD();
+        showWinModal(earned);
+      } else {
+        // Wrong! Deduct steeply & cross out button
+        state.wrongGuesses++;
+        state.eliminated.add(guess);
+        if (btn) {
+          btn.classList.remove('selected');
+          btn.classList.add('wrong');
+          btn.disabled = true;
+        }
+        state.selectedNumber = null;
+        confirmBtn.disabled = true;
+        confirmBtn.textContent = 'ยืนยัน';
+
+        playWrongSound();
+        setStatus(`เลข ${guess} ยังไม่ใช่! หัก -${WRONG_GUESS_PENALTY} คะแนน`, 'error');
+        recalculateScore();
+      }
+    }
+
+    function showWinModal(earned) {
+      let stars = '⭐';
+      let rank = 'ระดับ: นักสำรวจฝึกหัด';
+      if (earned >= 800) {
+        stars = '⭐⭐⭐';
+        rank = 'ระดับ: Museum Grade (สมบูรณ์แบบ!)';
+      } else if (earned >= 500) {
+        stars = '⭐⭐';
+        rank = 'ระดับ: นักโบราณคดีมืออาชีพ';
+      }
+
+      modalStars.textContent = stars;
+      modalTitle.textContent = `พบเลข "${state.targetNumber}" แล้ว!`;
+      modalSub.textContent = rank;
+      modalEarned.textContent = `+${earned.toLocaleString()}`;
+      modalSand.textContent = `${Math.round(state.clearedPercent)}%`;
+      winModal.classList.add('show');
+    }
+
+    confirmBtn.addEventListener('click', submitGuess);
+
+    nextStageBtn.addEventListener('click', () => {
+      winModal.classList.remove('show');
+      state.stage++;
+      startStage(true);
+    });
+
+    soundBtn.addEventListener('click', () => {
+      state.soundEnabled = !state.soundEnabled;
+      soundBtn.textContent = state.soundEnabled ? '🔊' : '🔇';
+      if (!state.soundEnabled) stopBrushSound();
+    });
+
+    // ==========================================
+    // 7. Particle & Sandstorm Animation Loop
+    // ==========================================
+    function animateFX() {
+      fxCtx.clearRect(0, 0, boardW, boardH);
+
+      // Spawn horizontal storm grains during sandstorm
+      if (state.windActive) {
+        for (let i = 0; i < 14; i++) {
+          state.particles.push({
+            x: -10,
+            y: Math.random() * boardH,
+            vx: 9 + Math.random() * 10,
+            vy: (Math.random() - 0.5) * 2.5,
+            size: 2 + Math.random() * 3,
+            alpha: 0.85,
+            color: Math.random() > 0.4 ? '#f5dca4' : '#d5a352'
+          });
+        }
+      }
+
+      for (let i = state.particles.length - 1; i >= 0; i--) {
+        const p = state.particles[i];
+        p.x += p.vx;
+        p.y += p.vy;
+        if (!state.windActive) {
+          p.vy += 0.14; // gravity for brushed sand
+          p.alpha -= 0.035;
+        } else {
+          p.alpha -= 0.018;
+        }
+
+        if (p.alpha <= 0 || p.x > boardW + 20 || p.y > boardH + 20) {
+          state.particles.splice(i, 1);
+          continue;
+        }
+
+        fxCtx.globalAlpha = p.alpha;
+        fxCtx.fillStyle = p.color;
+        fxCtx.beginPath();
+        fxCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        fxCtx.fill();
+      }
+      fxCtx.globalAlpha = 1;
+
+      requestAnimationFrame(animateFX);
+    }
+
+    // ==========================================
+    // 8. Initialize Game
+    // ==========================================
+    window.addEventListener('load', () => {
+      buildKeypad();
+      resizeCanvases();
+      startStage(true);
+      animateFX();
+    });
+
+    window.addEventListener('resize', () => {
+      // Preserve current stage cleanly on orientation change
+      resizeCanvases();
+      drawStoneTablet(state.targetNumber);
+      fillSandLayer();
+      state.clearedPercent = 0;
+      recalculateScore();
+    });
+  </script>
+</body>
+</html>
