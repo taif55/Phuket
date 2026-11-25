@@ -91,6 +91,10 @@
       color: #fff8e7;
       text-shadow: 0 1px 3px rgba(0, 0, 0, 0.85);
       pointer-events: none;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      padding: 0 10px;
     }
 
     .icon-btn {
@@ -168,36 +172,6 @@
       padding: 4px 9px;
       border-radius: 999px;
       pointer-events: none;
-    }
-
-    .storm-banner {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      background: rgba(48, 34, 18, 0.35);
-      pointer-events: none;
-      opacity: 0;
-      transition: opacity 0.25s ease;
-      text-align: center;
-      padding: 12px;
-    }
-
-    .storm-banner.show {
-      opacity: 1;
-    }
-
-    .storm-banner .title {
-      background: rgba(28, 21, 16, 0.92);
-      border: 1px solid var(--gold);
-      color: var(--gold-bright);
-      padding: 8px 16px;
-      border-radius: 999px;
-      font-weight: 800;
-      font-size: 15px;
-      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
     }
 
     /* Input Slots & Action Bar */
@@ -443,9 +417,6 @@
       <canvas id="fxCanvas"></canvas>
       <div class="board-badge" id="digitBadge">🔍 หาเลข 2 ตัว</div>
       <div class="sand-meter" id="sandPercentDisplay">เปิดทราย 0%</div>
-      <div class="storm-banner" id="stormBanner">
-        <div class="title" id="stormText">🌪️ พายุทะเลทราย!</div>
-      </div>
     </div>
 
     <!-- Input Slots & 0-9 Keypad -->
@@ -508,7 +479,8 @@
       lastPointer: null,
       lastCalcTime: 0,
       particles: [],
-      windActive: false
+      windActive: false,
+      stageTimers: []
     };
 
     // DOM Elements
@@ -530,8 +502,6 @@
     const confirmBtn = document.getElementById('confirmBtn');
     const keypadEl = document.getElementById('keypad');
     const soundBtn = document.getElementById('soundBtn');
-    const stormBanner = document.getElementById('stormBanner');
-    const stormText = document.getElementById('stormText');
     const winModal = document.getElementById('winModal');
     const modalStars = document.getElementById('modalStars');
     const modalTitle = document.getElementById('modalTitle');
@@ -542,6 +512,17 @@
 
     let boardW = 360;
     let boardH = 420;
+
+    function clearStageTimers() {
+      state.stageTimers.forEach(id => clearTimeout(id));
+      state.stageTimers = [];
+    }
+
+    function scheduleStageTimer(fn, delay) {
+      const id = setTimeout(fn, delay);
+      state.stageTimers.push(id);
+      return id;
+    }
 
     // ==========================================
     // 2. Web Audio API (ASMR Sand & FX Synth)
@@ -688,7 +669,6 @@
         '"Trebuchet MS", sans-serif'
       ];
 
-      // 1. สุ่มตัวเลขจริง (สมบูรณ์ + มีขีดเส้นใต้)
       for (let i = 0; i < count; i++) {
         const d = String(Math.floor(Math.random() * 10));
         digits.push(d);
@@ -739,7 +719,6 @@
       state.targetDigits = digits;
       state.placedItems = placed;
 
-      // 2. สุ่มเศษเลขแตกหักหลอกสายตา (เริ่มตั้งแต่ด่าน 2 เป็นต้นไป)
       const decoys = [];
       const decoyCount = state.stage < 2 ? 0 : Math.min(4, state.stage - 1);
       const allPlaced = [...placed];
@@ -803,7 +782,6 @@
       stoneCtx.lineCap = 'round';
       stoneCtx.lineJoin = 'round';
 
-      // เส้นรอยแตกหักมุม
       for (let i = 0; i < crackCount; i++) {
         let x = Math.random() * boardW;
         let y = Math.random() * boardH;
@@ -827,7 +805,6 @@
         stoneCtx.stroke();
       }
 
-      // เส้นโค้งโบราณหลอกสายตา
       for (let i = 0; i < arcCount; i++) {
         const cx = Math.random() * boardW;
         const cy = Math.random() * boardH;
@@ -859,7 +836,6 @@
       stoneCtx.fillStyle = grad;
       stoneCtx.fillRect(0, 0, boardW, boardH);
 
-      // พื้นผิวหินทราย
       for (let i = 0; i < 950; i++) {
         const x = Math.random() * boardW;
         const y = Math.random() * boardH;
@@ -868,17 +844,14 @@
         stoneCtx.fillRect(x, y, r, r);
       }
 
-      // เส้นรอยแตกหลอกสายตา
       drawDecoyCracksAndPatterns(state.stage);
 
-      // วาดเศษเลขแตกหักหลอกสายตา (แหว่งครึ่งตัว + ไม่มีขีดเส้นใต้)
       if (state.decoyItems && state.decoyItems.length > 0) {
         for (const item of state.decoyItems) {
           stoneCtx.save();
           stoneCtx.translate(item.x, item.y);
           stoneCtx.rotate(item.angle);
 
-          // สร้างแนวรอยแตกหยักเพื่อตัดตัวเลขให้แหว่งหายไปครึ่งหนึ่ง
           stoneCtx.save();
           stoneCtx.rotate(item.cutAngle);
           const span = item.fontSize * 0.9;
@@ -893,7 +866,6 @@
           stoneCtx.closePath();
           stoneCtx.clip();
 
-          // หมุนกลับเพื่อวาดตัวเลขในพื้นที่ที่ถูกตัดแหว่ง
           stoneCtx.rotate(-item.cutAngle);
           stoneCtx.font = `900 ${item.fontSize}px ${item.font}`;
           stoneCtx.textAlign = 'center';
@@ -906,7 +878,6 @@
           stoneCtx.fillText(item.char, 0, 0);
           stoneCtx.restore();
 
-          // วาดเส้นรอยหินกะเทาะตรงขอบที่แตกหัก
           stoneCtx.rotate(item.cutAngle);
           stoneCtx.beginPath();
           stoneCtx.moveTo(-span * 0.7, 4);
@@ -925,12 +896,10 @@
         }
       }
 
-      // กรอบศิลาจารึก
       stoneCtx.strokeStyle = 'rgba(255, 224, 166, 0.16)';
       stoneCtx.lineWidth = 2;
       stoneCtx.strokeRect(10, 10, boardW - 20, boardH - 20);
 
-      // วาดตัวเลขปริศนาจริง (สมบูรณ์ + มีขีดเส้นใต้กำกับฐาน)
       for (const item of state.placedItems) {
         stoneCtx.save();
         stoneCtx.translate(item.x, item.y);
@@ -939,15 +908,12 @@
         stoneCtx.textAlign = 'center';
         stoneCtx.textBaseline = 'middle';
 
-        // เงาแกะสลัก
         stoneCtx.fillStyle = 'rgba(255, 232, 185, 0.28)';
         stoneCtx.fillText(item.char, 2.5, 2.5);
 
-        // สีตัวเลขหลัก
         stoneCtx.fillStyle = '#20160d';
         stoneCtx.fillText(item.char, 0, 0);
 
-        // ขีดเส้นใต้กำกับฐานทุกตัว เพื่อไม่ให้สับสนเลข 6 กับ 9 เวลาตะแคง
         const w = stoneCtx.measureText(item.char).width;
         stoneCtx.strokeStyle = '#20160d';
         stoneCtx.lineWidth = Math.max(3, item.fontSize * 0.05);
@@ -1001,6 +967,7 @@
     }
 
     function startStage(isNewStage = true) {
+      clearStageTimers();
       state.digitCount = getDigitCountForStage(state.stage);
       state.enteredDigits = [];
       state.clearedPercent = 0;
@@ -1010,7 +977,6 @@
       state.windActive = false;
 
       digitBadge.textContent = `🔍 หาเลข ${state.digitCount} ตัว`;
-      stormBanner.classList.remove('show');
 
       generateScatteredDigits(state.digitCount);
       drawStoneTablet();
@@ -1148,6 +1114,7 @@
     // 5. Sandstorm Reset (When Score Hits 800)
     // ==========================================
     function triggerSandstormReset() {
+      clearStageTimers();
       state.isLocked = true;
       state.isBrushing = false;
       stopBrushSound();
@@ -1162,16 +1129,18 @@
 
       const answerStr = state.targetDigits.join(' - ');
       state.windActive = true;
-      stormText.textContent = `🌪️ พลังหมด! เฉลยคือ [ ${answerStr} ]`;
-      stormBanner.classList.add('show');
+      powerBarFill.style.width = '0%';
+      powerBarFill.classList.add('low');
+      powerBarText.textContent = `🌪️ พลังหมด! เฉลย [ ${answerStr} ]`;
       setStatus(`พายุทรายพัดเฉลยเลข ${answerStr} กำลังสุ่มใหม่...`, 'error');
 
-      setTimeout(() => {
-        stormText.textContent = '🌪️ พายุทรายพัดทับ เปลี่ยนเลขใหม่!';
-        setTimeout(() => {
+      // ค้างให้ดูเฉลยและลมพัดเพิ่มจากเดิม 2 วินาที (รวมเป็น 3.8 วินาที)
+      scheduleStageTimer(() => {
+        powerBarText.textContent = '🌪️ พายุทรายพัดทับ เปลี่ยนเลขใหม่!';
+        scheduleStageTimer(() => {
           startStage(false);
         }, 700);
-      }, 1800);
+      }, 3800);
     }
 
     // ==========================================
@@ -1221,14 +1190,31 @@
       const targetSorted = [...state.targetDigits].sort().join('');
 
       if (userSorted === targetSorted) {
+        clearStageTimers();
         state.isLocked = true;
+        state.isBrushing = false;
+        stopBrushSound();
+        confirmBtn.disabled = true;
+
         sandCtx.clearRect(0, 0, boardW, boardH);
+        state.clearedPercent = 100;
+        sandPercentDisplay.textContent = 'เปิดทราย 100%';
+        state.windActive = true;
+
         playWinSound();
+        playSandstormSound();
 
         const earned = state.stageScore;
         state.totalScore += earned;
         updateHUD();
-        showWinModal(earned);
+        powerBarText.textContent = `✨ ถูกต้อง! เฉลย [ ${state.targetDigits.join(' - ')} ]`;
+        setStatus('ถูกต้อง! ลมกำลังพัดเปิดแผ่นศิลาทั้งหมด...', 'highlight');
+
+        // ให้ลมพัดเปิดให้เห็นทั้งหมดก่อนขึ้นหน้าต่างผ่านด่าน
+        scheduleStageTimer(() => {
+          state.windActive = false;
+          showWinModal(earned);
+        }, 1800);
       } else {
         state.wrongGuesses++;
         const triedStr = state.enteredDigits.join('');
