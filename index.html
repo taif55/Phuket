@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Sand Relic 00-99 | นักโบราณคดีปัดทรายทายเลข</title>
+  <title>Sand Relic | นักโบราณคดีปัดทรายทายเลข</title>
   <style>
     :root {
       --bg-dark: #1c1510;
@@ -11,7 +11,6 @@
       --gold: #e5b85c;
       --gold-bright: #ffd97d;
       --sand-light: #e7c98f;
-      --sand-dark: #b98b48;
       --stone-border: #5a4632;
       --danger: #e05252;
       --success: #4cc97a;
@@ -41,28 +40,28 @@
 
     .app {
       width: 100%;
-      max-width: 480px;
+      max-width: 500px;
       height: 100dvh;
       display: flex;
       flex-direction: column;
-      padding: 8px 10px 10px;
-      gap: 7px;
+      padding: 6px 8px 8px;
+      gap: 6px;
       position: relative;
     }
 
-    /* Header HUD */
+    /* Compact Top HUD */
     .hud {
       display: grid;
       grid-template-columns: 1fr 1fr 1fr auto;
-      gap: 6px;
-      align-items: stretch;
+      gap: 5px;
+      flex: 0 0 auto;
     }
 
     .stat-box {
       background: var(--panel-bg);
       border: 1px solid var(--stone-border);
-      border-radius: 10px;
-      padding: 5px 8px;
+      border-radius: 9px;
+      padding: 4px 6px;
       text-align: center;
       display: flex;
       flex-direction: column;
@@ -70,16 +69,15 @@
     }
 
     .stat-label {
-      font-size: 10px;
+      font-size: 9px;
       color: var(--text-muted);
-      letter-spacing: 0.3px;
     }
 
     .stat-value {
-      font-size: 15px;
+      font-size: 14px;
       font-weight: 800;
       color: var(--gold-bright);
-      line-height: 1.2;
+      line-height: 1.15;
     }
 
     .stat-value.score-low {
@@ -89,10 +87,10 @@
     .icon-btn {
       background: var(--panel-bg);
       border: 1px solid var(--stone-border);
-      border-radius: 10px;
+      border-radius: 9px;
       color: var(--gold);
-      width: 40px;
-      font-size: 18px;
+      width: 38px;
+      font-size: 17px;
       cursor: pointer;
       display: flex;
       align-items: center;
@@ -103,16 +101,15 @@
       transform: scale(0.94);
     }
 
-    /* Excavation Board */
+    /* Near Full-Screen Excavation Board */
     .board-wrapper {
       position: relative;
       width: 100%;
       flex: 1 1 auto;
-      min-height: 170px;
-      max-height: 280px;
+      min-height: 240px;
       border-radius: 14px;
       border: 3px solid var(--stone-border);
-      box-shadow: inset 0 0 25px rgba(0, 0, 0, 0.7), 0 6px 18px rgba(0, 0, 0, 0.45);
+      box-shadow: inset 0 0 28px rgba(0, 0, 0, 0.72), 0 6px 18px rgba(0, 0, 0, 0.45);
       overflow: hidden;
       background: #463a2c;
     }
@@ -138,11 +135,12 @@
       position: absolute;
       top: 8px;
       left: 8px;
-      background: rgba(28, 21, 16, 0.78);
-      border: 1px solid rgba(229, 184, 92, 0.45);
-      color: var(--sand-light);
-      font-size: 11px;
-      padding: 3px 8px;
+      background: rgba(28, 21, 16, 0.82);
+      border: 1px solid rgba(229, 184, 92, 0.55);
+      color: var(--gold-bright);
+      font-size: 12px;
+      font-weight: 700;
+      padding: 4px 10px;
       border-radius: 999px;
       pointer-events: none;
       backdrop-filter: blur(2px);
@@ -152,12 +150,12 @@
       position: absolute;
       top: 8px;
       right: 8px;
-      background: rgba(28, 21, 16, 0.78);
+      background: rgba(28, 21, 16, 0.82);
       border: 1px solid rgba(229, 184, 92, 0.45);
-      color: var(--gold-bright);
+      color: var(--sand-light);
       font-size: 11px;
       font-weight: 700;
-      padding: 3px 8px;
+      padding: 4px 9px;
       border-radius: 999px;
       pointer-events: none;
     }
@@ -182,35 +180,67 @@
     }
 
     .storm-banner .title {
-      background: rgba(28, 21, 16, 0.9);
+      background: rgba(28, 21, 16, 0.92);
       border: 1px solid var(--gold);
       color: var(--gold-bright);
-      padding: 6px 14px;
+      padding: 8px 16px;
       border-radius: 999px;
       font-weight: 800;
-      font-size: 14px;
+      font-size: 15px;
       box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
     }
 
-    /* Action Bar */
-    .action-bar {
+    /* Input Slots & Action Bar */
+    .control-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      flex: 0 0 auto;
+    }
+
+    .input-bar {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
       background: var(--panel-bg);
       border: 1px solid var(--stone-border);
       border-radius: 12px;
       padding: 6px 8px;
     }
 
-    .status-text {
-      flex: 1;
-      font-size: 12px;
-      color: var(--text-muted);
-      line-height: 1.25;
-      min-height: 30px;
+    .slots-wrap {
       display: flex;
       align-items: center;
+      gap: 6px;
+    }
+
+    .digit-slot {
+      width: 36px;
+      height: 38px;
+      border-radius: 8px;
+      border: 2px solid var(--stone-border);
+      background: #1c1510;
+      color: var(--gold-bright);
+      font-size: 20px;
+      font-weight: 900;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: border-color 0.15s ease, transform 0.1s ease;
+    }
+
+    .digit-slot.filled {
+      border-color: var(--gold);
+      background: #2f2318;
+      transform: scale(1.03);
+    }
+
+    .status-text {
+      flex: 1;
+      font-size: 11px;
+      color: var(--text-muted);
+      line-height: 1.25;
+      padding: 0 4px;
     }
 
     .status-text.error {
@@ -223,12 +253,29 @@
       font-weight: 700;
     }
 
+    .del-btn {
+      background: #3d2c20;
+      color: var(--text-main);
+      border: 1px solid var(--stone-border);
+      border-radius: 9px;
+      height: 38px;
+      padding: 0 11px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .del-btn:active {
+      transform: scale(0.94);
+    }
+
     .confirm-btn {
       background: linear-gradient(180deg, #e5b85c 0%, #b5802b 100%);
       color: #1f160c;
       border: none;
-      border-radius: 10px;
-      padding: 9px 14px;
+      border-radius: 9px;
+      height: 38px;
+      padding: 0 14px;
       font-size: 13px;
       font-weight: 800;
       cursor: pointer;
@@ -238,66 +285,45 @@
     }
 
     .confirm-btn:disabled {
-      opacity: 0.4;
+      opacity: 0.38;
       cursor: not-allowed;
     }
 
     .confirm-btn:not(:disabled):active {
-      transform: scale(0.96);
+      transform: scale(0.95);
     }
 
-    /* 00-99 Keypad */
+    /* Compact 0-9 Keypad (2 rows x 5 cols) */
     .keypad {
       display: grid;
-      grid-template-columns: repeat(10, 1fr);
-      gap: 3px;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 5px;
       background: var(--panel-bg);
       border: 1px solid var(--stone-border);
       border-radius: 12px;
       padding: 6px;
-      flex: 0 0 auto;
     }
 
     .key-btn {
-      aspect-ratio: 1.15 / 1;
-      border: 1px solid #4a3929;
-      border-radius: 6px;
-      background: #36291e;
+      height: 42px;
+      border: 1px solid #4f3d2c;
+      border-radius: 9px;
+      background: linear-gradient(180deg, #3e3023 0%, #2f2319 100%);
       color: var(--text-main);
-      font-size: 12px;
-      font-weight: 700;
-      padding: 0;
+      font-size: 19px;
+      font-weight: 800;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: background 0.1s ease, transform 0.08s ease;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+      transition: transform 0.08s ease, background 0.1s ease;
     }
 
-    .key-btn:active:not(:disabled) {
-      transform: scale(0.9);
-    }
-
-    .key-btn.selected {
+    .key-btn:active {
+      transform: scale(0.92);
       background: var(--gold);
       color: #1a120a;
-      border-color: var(--gold-bright);
-      box-shadow: 0 0 8px rgba(255, 217, 125, 0.65);
-    }
-
-    .key-btn.wrong {
-      background: #231a14;
-      color: #6b5645;
-      border-color: #2f231a;
-      text-decoration: line-through;
-      cursor: not-allowed;
-      opacity: 0.55;
-    }
-
-    .key-btn.correct {
-      background: var(--success);
-      color: #0d2415;
-      border-color: #93f0b3;
     }
 
     /* Win Modal */
@@ -408,26 +434,29 @@
       <button class="icon-btn" id="soundBtn" title="เปิด/ปิดเสียง">🔊</button>
     </div>
 
-    <!-- Excavation Board -->
+    <!-- Near Full-Screen Excavation Board -->
     <div class="board-wrapper" id="boardWrapper">
       <canvas id="stoneCanvas"></canvas>
       <canvas id="sandCanvas"></canvas>
       <canvas id="fxCanvas"></canvas>
-      <div class="board-badge" id="zoneBadge">🏺 ทะเลทรายอียิปต์</div>
+      <div class="board-badge" id="digitBadge">🔍 หาเลข 2 ตัว</div>
       <div class="sand-meter" id="sandPercentDisplay">เปิดทราย 0%</div>
       <div class="storm-banner" id="stormBanner">
         <div class="title" id="stormText">🌪️ พายุทะเลทราย!</div>
       </div>
     </div>
 
-    <!-- Action Bar -->
-    <div class="action-bar">
-      <div class="status-text" id="statusText">ใช้นิ้วปัดทรายด้านบน แล้วเลือกเลข 00-99</div>
-      <button class="confirm-btn" id="confirmBtn" disabled>ยืนยัน</button>
-    </div>
+    <!-- Input Slots & 0-9 Keypad -->
+    <div class="control-panel">
+      <div class="input-bar">
+        <div class="slots-wrap" id="slotsWrap"></div>
+        <div class="status-text" id="statusText">ปัดทรายหาตัวเลข (สลับลำดับได้)</div>
+        <button class="del-btn" id="delBtn" title="ลบ">⌫</button>
+        <button class="confirm-btn" id="confirmBtn" disabled>ส่งคำตอบ</button>
+      </div>
 
-    <!-- 00-99 Keypad -->
-    <div class="keypad" id="keypad"></div>
+      <div class="keypad" id="keypad"></div>
+    </div>
   </div>
 
   <!-- Stage Clear Modal -->
@@ -456,19 +485,19 @@
     // ==========================================
     const MAX_STAGE_SCORE = 1000;
     const MAX_SAND_PENALTY = 800; // ปัดเกลี้ยง 100% หักสูงสุด 800 (เหลือติดตัว 200)
-    const WRONG_GUESS_PENALTY = 200; // กดผิด 1 ครั้ง หักฮวบ 200
-    const BRUSH_RADIUS = 20;
+    const WRONG_GUESS_PENALTY = 200; // ทายผิด 1 ครั้ง หักฮวบ 200
+    const BRUSH_RADIUS = 24;
 
     const state = {
       stage: 1,
       totalScore: 0,
       stageScore: MAX_STAGE_SCORE,
-      targetNumber: '00',
+      digitCount: 2,          // 2 หรือ 3 หลัก
+      targetDigits: [],       // เช่น ['4', '7'] หรือ ['1', '8', '5']
+      placedItems: [],        // เก็บตำแหน่ง/ขนาด/องศา เผื่อ resize
+      enteredDigits: [],      // ตัวเลขที่ผู้เล่นกดเข้ามา
       clearedPercent: 0,
       wrongGuesses: 0,
-      selectedNumber: null,
-      eliminated: new Set(),
-      shuffleBag: [],
       isBrushing: false,
       isLocked: false,
       soundEnabled: true,
@@ -491,8 +520,10 @@
     const stageScoreDisplay = document.getElementById('stageScoreDisplay');
     const totalScoreDisplay = document.getElementById('totalScoreDisplay');
     const sandPercentDisplay = document.getElementById('sandPercentDisplay');
-    const zoneBadge = document.getElementById('zoneBadge');
+    const digitBadge = document.getElementById('digitBadge');
+    const slotsWrap = document.getElementById('slotsWrap');
     const statusText = document.getElementById('statusText');
+    const delBtn = document.getElementById('delBtn');
     const confirmBtn = document.getElementById('confirmBtn');
     const keypadEl = document.getElementById('keypad');
     const soundBtn = document.getElementById('soundBtn');
@@ -507,7 +538,7 @@
     const nextStageBtn = document.getElementById('nextStageBtn');
 
     let boardW = 360;
-    let boardH = 220;
+    let boardH = 420;
 
     // ==========================================
     // 2. Web Audio API (ASMR Sand & FX Synth)
@@ -625,23 +656,12 @@
     }
 
     // ==========================================
-    // 3. Shuffle Bag & Stage Setup
+    // 3. Stage Setup & Scattered Digit Placement
     // ==========================================
-    function nextFromShuffleBag() {
-      if (state.shuffleBag.length === 0) {
-        state.shuffleBag = Array.from({ length: 100 }, (_, i) => String(i).padStart(2, '0'));
-        for (let i = state.shuffleBag.length - 1; i > 0; i--) {
-          const j = Math.floor(Math.random() * (i + 1));
-          [state.shuffleBag[i], state.shuffleBag[j]] = [state.shuffleBag[j], state.shuffleBag[i]];
-        }
-      }
-      return state.shuffleBag.pop();
-    }
-
     function resizeCanvases() {
       const rect = boardWrapper.getBoundingClientRect();
       boardW = Math.max(280, Math.floor(rect.width));
-      boardH = Math.max(160, Math.floor(rect.height));
+      boardH = Math.max(240, Math.floor(rect.height));
 
       [stoneCanvas, sandCanvas, fxCanvas].forEach(c => {
         c.width = boardW;
@@ -649,52 +669,99 @@
       });
     }
 
-    // วาดรอยแตกร้าวและเส้นลวดลายหลอกสายตา (สีใกล้เคียงตัวเลข)
+    function getDigitCountForStage(stage) {
+      if (stage <= 2) return 2;
+      if (stage === 3) return 3;
+      // ด่าน 4 ขึ้นไป สลับระหว่าง 2 หลัก กับ 3 หลัก (เน้น 3 หลักเยอะขึ้น)
+      return stage % 3 === 1 ? 2 : 3;
+    }
+
+    function generateScatteredDigits(count) {
+      const digits = [];
+      const placed = [];
+      const fonts = [
+        'Georgia, serif',
+        '"Courier New", monospace',
+        'Impact, "Arial Black", sans-serif',
+        '"Trebuchet MS", sans-serif'
+      ];
+
+      for (let i = 0; i < count; i++) {
+        const d = String(Math.floor(Math.random() * 10));
+        digits.push(d);
+
+        // สุ่มขนาด: บางตัวเล็ก บางตัวใหญ่ชัดเจน
+        const minSize = Math.min(boardW, boardH) * 0.20;
+        const maxSize = Math.min(boardW, boardH) * 0.44;
+        const fontSize = Math.floor(minSize + Math.random() * (maxSize - minSize));
+        const radius = fontSize * 0.58;
+
+        // หาตำแหน่งที่ไม่ซ้อนทับกับตัวก่อนหน้า
+        let bestX = boardW / 2;
+        let bestY = boardH / 2;
+        const padX = Math.max(46, radius + 16);
+        const padY = Math.max(54, radius + 24);
+
+        for (let attempt = 0; attempt < 60; attempt++) {
+          const rx = padX + Math.random() * Math.max(10, boardW - padX * 2);
+          const ry = padY + Math.random() * Math.max(10, boardH - padY * 2);
+
+          let overlaps = false;
+          for (const other of placed) {
+            const dist = Math.hypot(rx - other.x, ry - other.y);
+            if (dist < (radius + other.radius) * 1.05) {
+              overlaps = true;
+              break;
+            }
+          }
+          if (!overlaps) {
+            bestX = rx;
+            bestY = ry;
+            break;
+          }
+        }
+
+        // สุ่มองศาตะแคง (-65° ถึง +65°)
+        const angle = ((Math.random() * 130) - 65) * (Math.PI / 180);
+        const font = fonts[Math.floor(Math.random() * fonts.length)];
+
+        placed.push({
+          char: d,
+          x: bestX,
+          y: bestY,
+          fontSize,
+          radius,
+          angle,
+          font
+        });
+      }
+
+      state.targetDigits = digits;
+      state.placedItems = placed;
+    }
+
     function drawDecoyCracksAndPatterns(stage) {
-      const crackCount = Math.min(18, 4 + stage * 2);
-      const arcCount = Math.min(10, 2 + stage);
+      const crackCount = Math.min(20, 6 + stage * 2);
+      const arcCount = Math.min(12, 3 + stage);
 
       stoneCtx.save();
       stoneCtx.lineCap = 'round';
       stoneCtx.lineJoin = 'round';
 
-      // 1. เส้นรอยแตกหักมุม (หลอกคล้ายขาเลข 1, 4, 7)
+      // เส้นรอยแตกหักมุม
       for (let i = 0; i < crackCount; i++) {
         let x = Math.random() * boardW;
         let y = Math.random() * boardH;
         const segments = 2 + Math.floor(Math.random() * 3);
-        const lineWidth = 4 + Math.random() * 6; // บางกว่าเส้นตัวเลขหลักนิดหน่อย
+        const lineWidth = 3.5 + Math.random() * 5;
 
         stoneCtx.beginPath();
         stoneCtx.moveTo(x, y);
         for (let s = 0; s < segments; s++) {
-          x += (Math.random() - 0.5) * 110;
-          y += (Math.random() - 0.5) * 90;
+          x += (Math.random() - 0.5) * 120;
+          y += (Math.random() - 0.5) * 120;
           stoneCtx.lineTo(x, y);
         }
-
-        // เงาขอบหินให้ดูเหมือนรอยแกะสลักจริง
-        stoneCtx.strokeStyle = 'rgba(255, 232, 185, 0.16)';
-        stoneCtx.lineWidth = lineWidth + 1.5;
-        stoneCtx.stroke();
-
-        // สีหลักใกล้เคียงสีตัวเลข (#241a11)
-        stoneCtx.strokeStyle = 'rgba(38, 27, 17, 0.82)';
-        stoneCtx.lineWidth = lineWidth;
-        stoneCtx.stroke();
-      }
-
-      // 2. เส้นโค้งโบราณ (หลอกคล้ายส่วนโค้งของเลข 0, 2, 3, 5, 6, 8, 9)
-      for (let i = 0; i < arcCount; i++) {
-        const cx = Math.random() * boardW;
-        const cy = Math.random() * boardH;
-        const radius = 24 + Math.random() * 48;
-        const startAngle = Math.random() * Math.PI * 2;
-        const endAngle = startAngle + (0.6 + Math.random() * 1.6);
-        const lineWidth = 5 + Math.random() * 6;
-
-        stoneCtx.beginPath();
-        stoneCtx.arc(cx, cy, radius, startAngle, endAngle);
 
         stoneCtx.strokeStyle = 'rgba(255, 232, 185, 0.14)';
         stoneCtx.lineWidth = lineWidth + 1.5;
@@ -705,11 +772,31 @@
         stoneCtx.stroke();
       }
 
+      // เส้นโค้งโบราณหลอกสายตา
+      for (let i = 0; i < arcCount; i++) {
+        const cx = Math.random() * boardW;
+        const cy = Math.random() * boardH;
+        const radius = 22 + Math.random() * 52;
+        const startAngle = Math.random() * Math.PI * 2;
+        const endAngle = startAngle + (0.6 + Math.random() * 1.8);
+        const lineWidth = 4 + Math.random() * 5.5;
+
+        stoneCtx.beginPath();
+        stoneCtx.arc(cx, cy, radius, startAngle, endAngle);
+
+        stoneCtx.strokeStyle = 'rgba(255, 232, 185, 0.12)';
+        stoneCtx.lineWidth = lineWidth + 1.5;
+        stoneCtx.stroke();
+
+        stoneCtx.strokeStyle = 'rgba(38, 27, 17, 0.75)';
+        stoneCtx.lineWidth = lineWidth;
+        stoneCtx.stroke();
+      }
+
       stoneCtx.restore();
     }
 
-    function drawStoneTablet(numberStr) {
-      // Base sandstone gradient
+    function drawStoneTablet() {
       const grad = stoneCtx.createLinearGradient(0, 0, boardW, boardH);
       grad.addColorStop(0, '#6a5640');
       grad.addColorStop(0.5, '#544331');
@@ -717,8 +804,8 @@
       stoneCtx.fillStyle = grad;
       stoneCtx.fillRect(0, 0, boardW, boardH);
 
-      // Subtle stone grain speckles
-      for (let i = 0; i < 650; i++) {
+      // พื้นผิวหินทราย
+      for (let i = 0; i < 950; i++) {
         const x = Math.random() * boardW;
         const y = Math.random() * boardH;
         const r = Math.random() * 1.6;
@@ -726,59 +813,42 @@
         stoneCtx.fillRect(x, y, r, r);
       }
 
-      // วาดเส้นหลอกชุดแรกไว้ด้านหลังตัวเลข
+      // เส้นรอยแตกหลอกสายตา
       drawDecoyCracksAndPatterns(state.stage);
 
-      // Carved border frame on the stone
+      // กรอบศิลาจารึก
       stoneCtx.strokeStyle = 'rgba(255, 224, 166, 0.16)';
       stoneCtx.lineWidth = 2;
       stoneCtx.strokeRect(10, 10, boardW - 20, boardH - 20);
 
-      // Choose font style by stage progression
-      let fontFamily = 'Georgia, serif';
-      let zoneName = '🏺 ทะเลทรายอียิปต์';
-      if (state.stage >= 4 && state.stage <= 7) {
-        fontFamily = '"Courier New", monospace';
-        zoneName = '🗿 วิหารศิลาโบราณ';
-      } else if (state.stage >= 8) {
-        fontFamily = 'Impact, "Arial Black", sans-serif';
-        zoneName = '🏛️ สุสานฟาโรห์ (โหมดยาก)';
+      // วาดตัวเลขปริศนาแต่ละตัวตามตำแหน่ง ขนาด และองศาที่สุ่มไว้
+      for (const item of state.placedItems) {
+        stoneCtx.save();
+        stoneCtx.translate(item.x, item.y);
+        stoneCtx.rotate(item.angle);
+        stoneCtx.font = `900 ${item.fontSize}px ${item.font}`;
+        stoneCtx.textAlign = 'center';
+        stoneCtx.textBaseline = 'middle';
+
+        // เงาแกะสลัก
+        stoneCtx.fillStyle = 'rgba(255, 232, 185, 0.28)';
+        stoneCtx.fillText(item.char, 2.5, 2.5);
+
+        // สีตัวเลขหลัก
+        stoneCtx.fillStyle = '#20160d';
+        stoneCtx.fillText(item.char, 0, 0);
+
+        // ขีดเส้นใต้กำกับฐานทุกตัว เพื่อไม่ให้สับสนเลข 6 กับ 9 เวลาตะแคง
+        const w = stoneCtx.measureText(item.char).width;
+        stoneCtx.strokeStyle = '#20160d';
+        stoneCtx.lineWidth = Math.max(3, item.fontSize * 0.05);
+        stoneCtx.beginPath();
+        stoneCtx.moveTo(-w * 0.42, item.fontSize * 0.44);
+        stoneCtx.lineTo(w * 0.42, item.fontSize * 0.44);
+        stoneCtx.stroke();
+
+        stoneCtx.restore();
       }
-      zoneBadge.textContent = zoneName;
-
-      // ฟอนต์ใหญ่เต็มกระดาน!
-      const fontSize = Math.floor(Math.min(boardW * 0.58, boardH * 0.86));
-      const offsetX = (Math.random() - 0.5) * (boardW * 0.14);
-      const offsetY = (Math.random() - 0.5) * (boardH * 0.10);
-      const posX = boardW / 2 + offsetX;
-      const posY = boardH / 2 + offsetY;
-      const angle = ((Math.random() * 24) - 12) * (Math.PI / 180);
-
-      stoneCtx.save();
-      stoneCtx.translate(posX, posY);
-      stoneCtx.rotate(angle);
-      stoneCtx.font = `900 ${fontSize}px ${fontFamily}`;
-      stoneCtx.textAlign = 'center';
-      stoneCtx.textBaseline = 'middle';
-
-      // Engraved inner-shadow illusion
-      stoneCtx.fillStyle = 'rgba(255, 232, 185, 0.26)';
-      stoneCtx.fillText(numberStr, 2.5, 2.5);
-
-      // ตัวเลขหลักสีเข้มชัดเจน
-      stoneCtx.fillStyle = '#20160d';
-      stoneCtx.fillText(numberStr, 0, 0);
-
-      // ขีดเส้นใต้กำกับฐานตัวเลข ป้องกันสับสนเลข 6 กับ 9
-      const textWidth = stoneCtx.measureText(numberStr).width;
-      stoneCtx.strokeStyle = '#20160d';
-      stoneCtx.lineWidth = Math.max(4, fontSize * 0.045);
-      stoneCtx.beginPath();
-      stoneCtx.moveTo(-textWidth * 0.42, fontSize * 0.43);
-      stoneCtx.lineTo(textWidth * 0.42, fontSize * 0.43);
-      stoneCtx.stroke();
-
-      stoneCtx.restore();
     }
 
     function fillSandLayer() {
@@ -790,18 +860,16 @@
       sandCtx.fillStyle = grad;
       sandCtx.fillRect(0, 0, boardW, boardH);
 
-      // Soft dune ripples
       sandCtx.strokeStyle = 'rgba(255, 240, 200, 0.22)';
       sandCtx.lineWidth = 10;
-      for (let y = 18; y < boardH; y += 34) {
+      for (let y = 18; y < boardH; y += 36) {
         sandCtx.beginPath();
         sandCtx.moveTo(0, y);
-        sandCtx.bezierCurveTo(boardW * 0.33, y - 10, boardW * 0.66, y + 10, boardW, y);
+        sandCtx.bezierCurveTo(boardW * 0.33, y - 12, boardW * 0.66, y + 12, boardW, y);
         sandCtx.stroke();
       }
 
-      // Sand grains texture
-      for (let i = 0; i < 2400; i++) {
+      for (let i = 0; i < 3200; i++) {
         const x = Math.random() * boardW;
         const y = Math.random() * boardH;
         sandCtx.fillStyle = Math.random() > 0.5
@@ -811,25 +879,39 @@
       }
     }
 
+    function renderSlots() {
+      slotsWrap.innerHTML = '';
+      for (let i = 0; i < state.digitCount; i++) {
+        const slot = document.createElement('div');
+        const val = state.enteredDigits[i];
+        slot.className = 'digit-slot' + (val !== undefined ? ' filled' : '');
+        slot.textContent = val !== undefined ? val : '_';
+        slotsWrap.appendChild(slot);
+      }
+      confirmBtn.disabled = state.enteredDigits.length !== state.digitCount || state.isLocked;
+    }
+
     function startStage(isNewStage = true) {
       if (isNewStage) {
         stageDisplay.textContent = `ด่าน ${state.stage}`;
       }
-      state.targetNumber = nextFromShuffleBag();
+      state.digitCount = getDigitCountForStage(state.stage);
+      state.enteredDigits = [];
       state.clearedPercent = 0;
       state.wrongGuesses = 0;
       state.stageScore = MAX_STAGE_SCORE;
-      state.selectedNumber = null;
-      state.eliminated.clear();
       state.isLocked = false;
       state.windActive = false;
 
+      digitBadge.textContent = `🔍 หาเลข ${state.digitCount} ตัว`;
       stormBanner.classList.remove('show');
-      drawStoneTablet(state.targetNumber);
+
+      generateScatteredDigits(state.digitCount);
+      drawStoneTablet();
       fillSandLayer();
-      resetKeypadUI();
+      renderSlots();
       updateHUD();
-      setStatus('ใช้นิ้วปัดทรายด้านบน แล้วเลือกเลข 00–99', '');
+      setStatus(`ปัดทรายหาเลขให้ครบ ${state.digitCount} ตัว (สลับลำดับได้)`, '');
     }
 
     // ==========================================
@@ -846,8 +928,8 @@
     function spawnSandParticles(x, y, count = 4) {
       for (let i = 0; i < count; i++) {
         state.particles.push({
-          x: x + (Math.random() - 0.5) * 16,
-          y: y + (Math.random() - 0.5) * 16,
+          x: x + (Math.random() - 0.5) * 18,
+          y: y + (Math.random() - 0.5) * 18,
           vx: (Math.random() - 0.5) * 3.5,
           vy: (Math.random() - 0.3) * 3.0 + 0.6,
           size: 1.5 + Math.random() * 2.5,
@@ -881,7 +963,7 @@
       const imgData = sandCtx.getImageData(0, 0, boardW, boardH).data;
       let cleared = 0;
       let total = 0;
-      const step = 4;
+      const step = 6; // fast sampling for large canvas
 
       for (let i = 3; i < imgData.length; i += 4 * step) {
         total++;
@@ -915,7 +997,6 @@
       statusText.className = `status-text ${type}`;
     }
 
-    // Pointer Events on Sand Canvas
     sandCanvas.addEventListener('pointerdown', (e) => {
       if (state.isLocked) return;
       initAudio();
@@ -936,7 +1017,7 @@
       state.lastPointer = pos;
 
       const now = performance.now();
-      if (now - state.lastCalcTime > 80) {
+      if (now - state.lastCalcTime > 85) {
         state.lastCalcTime = now;
         calculateClearedPercent();
       }
@@ -969,71 +1050,69 @@
       state.clearedPercent = 100;
       sandPercentDisplay.textContent = 'เปิดทราย 100%';
 
+      const answerStr = state.targetDigits.join(' - ');
       state.windActive = true;
-      stormText.textContent = `🌪️ คะแนนหมด! เฉลยคือ "${state.targetNumber}"`;
+      stormText.textContent = `🌪️ คะแนนหมด! เฉลยคือ [ ${answerStr} ]`;
       stormBanner.classList.add('show');
-      setStatus(`พายุทรายพัดเฉลยเลข ${state.targetNumber} กำลังสุ่มหลุมใหม่...`, 'error');
+      setStatus(`พายุทรายพัดเฉลยเลข ${answerStr} กำลังสุ่มใหม่...`, 'error');
 
       setTimeout(() => {
         stormText.textContent = '🌪️ พายุทรายพัดทับ เปลี่ยนเลขใหม่!';
         setTimeout(() => {
           startStage(false);
         }, 700);
-      }, 1700);
+      }, 1800);
     }
 
     // ==========================================
-    // 6. Keypad 00-99 & Guess Logic
+    // 6. Keypad 0-9 & Order-Independent Matching
     // ==========================================
     function buildKeypad() {
+      const order = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'];
       keypadEl.innerHTML = '';
-      for (let i = 0; i < 100; i++) {
-        const numStr = String(i).padStart(2, '0');
+      order.forEach(numStr => {
         const btn = document.createElement('button');
         btn.className = 'key-btn';
         btn.textContent = numStr;
-        btn.dataset.num = numStr;
-        btn.addEventListener('click', () => handleKeyTap(numStr, btn));
+        btn.addEventListener('click', () => handleDigitPress(numStr));
         keypadEl.appendChild(btn);
-      }
-    }
-
-    function resetKeypadUI() {
-      const btns = keypadEl.querySelectorAll('.key-btn');
-      btns.forEach(btn => {
-        btn.className = 'key-btn';
-        btn.disabled = false;
       });
-      confirmBtn.disabled = true;
-      confirmBtn.textContent = 'ยืนยัน';
     }
 
-    function handleKeyTap(numStr, btn) {
-      if (state.isLocked || state.eliminated.has(numStr)) return;
+    function handleDigitPress(numStr) {
+      if (state.isLocked) return;
       initAudio();
+      if (state.enteredDigits.length >= state.digitCount) return;
 
-      if (state.selectedNumber === numStr) {
-        submitGuess();
-        return;
+      playTone(500, 0.05, 'sine', 0.06);
+      state.enteredDigits.push(numStr);
+      renderSlots();
+
+      if (state.enteredDigits.length === state.digitCount) {
+        setStatus('ครบแล้ว! กดปุ่ม "ส่งคำตอบ" ได้เลย', 'highlight');
+      } else {
+        setStatus(`กดเพิ่มอีก ${state.digitCount - state.enteredDigits.length} ตัว`, '');
       }
-
-      playTone(480, 0.05, 'sine', 0.06);
-      keypadEl.querySelectorAll('.key-btn.selected').forEach(el => el.classList.remove('selected'));
-      btn.classList.add('selected');
-      state.selectedNumber = numStr;
-      confirmBtn.disabled = false;
-      confirmBtn.textContent = `ยืนยัน ${numStr}`;
-      setStatus(`เลือกเลข ${numStr} แล้ว (กดยืนยัน หรือแตะซ้ำเพื่อตอบ)`, 'highlight');
     }
+
+    delBtn.addEventListener('click', () => {
+      if (state.isLocked || state.enteredDigits.length === 0) return;
+      initAudio();
+      playTone(320, 0.04, 'sine', 0.05);
+      state.enteredDigits.pop();
+      renderSlots();
+      setStatus(`ปัดทรายหาเลขให้ครบ ${state.digitCount} ตัว (สลับลำดับได้)`, '');
+    });
 
     function submitGuess() {
-      if (state.isLocked || state.selectedNumber === null) return;
-      const guess = state.selectedNumber;
-      const btn = keypadEl.querySelector(`.key-btn[data-num="${guess}"]`);
+      if (state.isLocked || state.enteredDigits.length !== state.digitCount) return;
 
-      if (guess === state.targetNumber) {
+      // ตรวจคำตอบแบบไม่สนลำดับ (เรียงจากน้อยไปมากแล้วเทียบกัน)
+      const userSorted = [...state.enteredDigits].sort().join('');
+      const targetSorted = [...state.targetDigits].sort().join('');
+
+      if (userSorted === targetSorted) {
         state.isLocked = true;
-        if (btn) btn.classList.add('correct');
         sandCtx.clearRect(0, 0, boardW, boardH);
         playWinSound();
 
@@ -1043,18 +1122,11 @@
         showWinModal(earned);
       } else {
         state.wrongGuesses++;
-        state.eliminated.add(guess);
-        if (btn) {
-          btn.classList.remove('selected');
-          btn.classList.add('wrong');
-          btn.disabled = true;
-        }
-        state.selectedNumber = null;
-        confirmBtn.disabled = true;
-        confirmBtn.textContent = 'ยืนยัน';
-
+        const triedStr = state.enteredDigits.join('');
+        state.enteredDigits = [];
+        renderSlots();
         playWrongSound();
-        setStatus(`เลข ${guess} ยังไม่ใช่! หัก -${WRONG_GUESS_PENALTY} คะแนน`, 'error');
+        setStatus(`ชุดเลข "${triedStr}" ยังไม่ถูก! หัก -${WRONG_GUESS_PENALTY} คะแนน`, 'error');
         recalculateScore();
       }
     }
@@ -1071,7 +1143,7 @@
       }
 
       modalStars.textContent = stars;
-      modalTitle.textContent = `พบเลข "${state.targetNumber}" แล้ว!`;
+      modalTitle.textContent = `พบเลข [ ${state.targetDigits.join(' - ')} ] แล้ว!`;
       modalSub.textContent = rank;
       modalEarned.textContent = `+${earned.toLocaleString()}`;
       modalSand.textContent = `${Math.round(state.clearedPercent)}%`;
@@ -1099,11 +1171,11 @@
       fxCtx.clearRect(0, 0, boardW, boardH);
 
       if (state.windActive) {
-        for (let i = 0; i < 14; i++) {
+        for (let i = 0; i < 16; i++) {
           state.particles.push({
             x: -10,
             y: Math.random() * boardH,
-            vx: 9 + Math.random() * 10,
+            vx: 9 + Math.random() * 11,
             vy: (Math.random() - 0.5) * 2.5,
             size: 2 + Math.random() * 3,
             alpha: 0.85,
@@ -1151,7 +1223,8 @@
 
     window.addEventListener('resize', () => {
       resizeCanvases();
-      drawStoneTablet(state.targetNumber);
+      generateScatteredDigits(state.digitCount);
+      drawStoneTablet();
       fillSandLayer();
       state.clearedPercent = 0;
       recalculateScore();
