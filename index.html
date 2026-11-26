@@ -415,6 +415,24 @@
       margin-bottom: 8px;
     }
 
+    .praise-banner {
+      display: none;
+      margin-bottom: 10px;
+      padding: 8px 10px;
+      border-radius: 10px;
+      background: linear-gradient(90deg, rgba(255, 217, 125, 0.24), rgba(229, 184, 92, 0.11));
+      border: 1px solid var(--gold-bright);
+      color: var(--gold-bright);
+      font-size: 12px;
+      font-weight: 800;
+      line-height: 1.35;
+      box-shadow: 0 0 14px rgba(255, 217, 125, 0.2);
+    }
+
+    .praise-banner.show {
+      display: block;
+    }
+
     .total-score-box {
       background: rgba(0, 0, 0, 0.35);
       border: 1px solid rgba(229, 184, 92, 0.45);
@@ -583,6 +601,7 @@
     <div class="modal-card">
       <div class="modal-rank-stars" id="modalRankStars">⭐</div>
       <div class="modal-rank-name" id="modalRankName">1★ Novice</div>
+      <div class="praise-banner" id="praiseBanner"></div>
 
       <div class="total-score-box">
         <small id="lblTotalScore">Total Accumulated Score</small>
@@ -610,7 +629,7 @@
           <strong id="modalMetricRisk">0</strong>
         </div>
         <div class="metric-item">
-          <small id="lblMetricTier">Tier</small>
+          <small id="lblMetricTier">Rank Tier</small>
           <strong id="modalMetricTier">1</strong>
         </div>
       </div>
@@ -655,7 +674,12 @@
         deltaWin: (earned) => `Stage +${earned} pts`,
         deltaSummary: 'Toggle x2 / x3 for exact-order bonus; miss = +0 stage pts.',
         rankNext: (pts, name) => `${pts} pts to ${name}`,
-        rankEndless: (pts, tierNum) => `${pts} pts to Professor ${toRoman(tierNum + 1)}`
+        rankEndless: (pts, tierNum) => `${pts} pts to Professor ${toRoman(tierNum + 1)}`,
+        praiseProdigy: (stages, best) => best && best < stages
+          ? `⚡ Prodigy Professor! Reached 5★ in ${stages} stages (Best: ${best})!`
+          : `⚡ Prodigy Professor! Reached 5★ in just ${stages} stages!`,
+        praiseProfessor: (stages) => `🎓 Professor Achieved in ${stages} stages!`,
+        praiseMilestone: (roman) => `👑 Living Legend! Ascended to Professor ${roman}!`
       },
       th: {
         switchBtn: 'EN',
@@ -685,7 +709,12 @@
         deltaWin: (earned) => `ด่านนี้ +${earned} คะแนน`,
         deltaSummary: 'กด x2 / x3 ลุ้นเรียงตรงลำดับ (พลาดได้ +0 แต้มด่าน ไม่หักแต้มรวม)',
         rankNext: (pts, name) => `อีก ${pts} แต้ม ถึง ${name}`,
-        rankEndless: (pts, tierNum) => `อีก ${pts} แต้ม ถึง ศาสตราจารย์ ขั้นที่ ${tierNum + 1}`
+        rankEndless: (pts, tierNum) => `อีก ${pts} แต้ม ถึง ศาสตราจารย์ ขั้นที่ ${tierNum + 1}`,
+        praiseProdigy: (stages, best) => best && best < stages
+          ? `⚡ ศาสตราจารย์อัจฉริยะ! ขึ้น 5 ดาวใน ${stages} ด่าน (สถิติดีสุด: ${best} ด่าน)`
+          : `⚡ ศาสตราจารย์อัจฉริยะ! ขึ้น 5 ดาวได้ในแค่ ${stages} ด่าน!`,
+        praiseProfessor: (stages) => `🎓 ก้าวสู่ตำแหน่งศาสตราจารย์ใน ${stages} ด่าน!`,
+        praiseMilestone: (roman) => `👑 ระดับตำนาน! เลื่อนสู่ ศาสตราจารย์ (${roman})`
       }
     };
 
@@ -723,16 +752,11 @@
     }
 
     // ==========================================
-    // 2. Rank Tiers + Endless Professor Tiers
+    // 2. Rank Tiers + Endless Professor Tiers + Praise Milestones
     // ==========================================
-    const BASE_RANKS = [
-      { tier: 1, stars: 1, minScore: 0,     en: 'Novice',            th: 'มือสมัครเล่น' },
-      { tier: 2, stars: 2, minScore: 3500,  en: 'Explorer',          th: 'นักสำรวจ' },
-      { tier: 3, stars: 3, minScore: 9500,  en: 'Specialist',        th: 'ผู้เชี่ยวชาญ' },
-      { tier: 4, stars: 4, minScore: 19000, en: 'Lead Archaeologist', th: 'หัวหน้าคณะสำรวจ' }
-    ];
     const PROF_START_SCORE = 32000;
     const PROF_STEP_SCORE = 15000;
+    const PRODIGY_STAGE_LIMIT = 15;
 
     function getRankInfo(score) {
       if (score < 3500) {
@@ -822,10 +846,25 @@
       };
     }
 
+    function evaluatePraise(oldProfNum, newProfNum, stagesUsed, bestProfStages) {
+      if (oldProfNum === 0 && newProfNum >= 1) {
+        if (stagesUsed <= PRODIGY_STAGE_LIMIT) {
+          return t().praiseProdigy(stagesUsed, bestProfStages);
+        }
+        return t().praiseProfessor(stagesUsed);
+      }
+
+      if (newProfNum > oldProfNum && newProfNum % 5 === 0) {
+        return t().praiseMilestone(toRoman(newProfNum));
+      }
+
+      return '';
+    }
+
     // ==========================================
     // 3. Game Config, State & LocalStorage Save
     // ==========================================
-    const STORAGE_KEY = 'sand_relic_save_v2';
+    const STORAGE_KEY = 'sand_relic_save_v3';
     const MAX_STAGE_SCORE = 1000;
     const SANDSTORM_THRESHOLD = 800;
     const MAX_SAND_PENALTY = 800;
@@ -838,6 +877,8 @@
       stage: 1,
       totalScore: 0,
       riskWins: 0,
+      minProfStages: null,
+      activePraise: '',
       stageScore: MAX_STAGE_SCORE,
       digitCount: 2,
       targetDigits: [],
@@ -871,6 +912,9 @@
         if (typeof parsed.stage === 'number' && parsed.stage >= 1) state.stage = Math.floor(parsed.stage);
         if (typeof parsed.totalScore === 'number' && parsed.totalScore >= 0) state.totalScore = Math.floor(parsed.totalScore);
         if (typeof parsed.riskWins === 'number' && parsed.riskWins >= 0) state.riskWins = Math.floor(parsed.riskWins);
+        if (typeof parsed.minProfStages === 'number' && parsed.minProfStages >= 1) {
+          state.minProfStages = Math.floor(parsed.minProfStages);
+        }
         if (parsed.lang === 'th' || parsed.lang === 'en') {
           state.lang = parsed.lang;
           state.hasSavedLang = true;
@@ -889,6 +933,7 @@
           stage: state.stage,
           totalScore: state.totalScore,
           riskWins: state.riskWins,
+          minProfStages: state.minProfStages,
           lang: state.lang,
           soundEnabled: state.soundEnabled
         }));
@@ -930,6 +975,7 @@
     const scoreModal = document.getElementById('scoreModal');
     const modalRankStars = document.getElementById('modalRankStars');
     const modalRankName = document.getElementById('modalRankName');
+    const praiseBanner = document.getElementById('praiseBanner');
     const lblTotalScore = document.getElementById('lblTotalScore');
     const modalTotalScore = document.getElementById('modalTotalScore');
     const modalStageDelta = document.getElementById('modalStageDelta');
@@ -1689,11 +1735,28 @@
         playWinSound();
         playSandstormSound();
 
+        const prevRank = getRankInfo(state.totalScore);
         const mult = isOrderRiskMode ? state.selectedMult : 1;
         const earned = state.stageScore * mult;
+        const stagesUsed = state.stage;
 
         if (mult > 1) state.riskWins++;
         state.totalScore += earned;
+
+        const nextRank = getRankInfo(state.totalScore);
+        if (prevRank.profNum === 0 && nextRank.profNum >= 1) {
+          if (state.minProfStages === null || stagesUsed < state.minProfStages) {
+            state.minProfStages = stagesUsed;
+          }
+        }
+
+        state.activePraise = evaluatePraise(
+          prevRank.profNum,
+          nextRank.profNum,
+          stagesUsed,
+          state.minProfStages
+        );
+
         state.stage++;
         saveProgress();
         updateHUD();
@@ -1709,7 +1772,6 @@
           openScoreModal('stageClear', earned);
         }, 1800);
       } else if (isOrderRiskMode) {
-        // Risk miss: +0 stage points, no deduction to totalScore, sandstorm resets current stage
         state.stageScore = 0;
         updateHUD();
         triggerSandstormReset(true);
@@ -1733,6 +1795,15 @@
 
       modalRankStars.textContent = '⭐'.repeat(info.stars);
       modalRankName.textContent = state.lang === 'th' ? info.thLabel : info.enLabel;
+
+      if (mode === 'stageClear' && state.activePraise) {
+        praiseBanner.textContent = state.activePraise;
+        praiseBanner.classList.add('show');
+      } else {
+        praiseBanner.textContent = '';
+        praiseBanner.classList.remove('show');
+      }
+
       lblTotalScore.textContent = t().totalScoreLabel;
       modalTotalScore.textContent = state.totalScore.toLocaleString();
 
@@ -1774,6 +1845,7 @@
 
     modalPrimaryBtn.addEventListener('click', () => {
       scoreModal.classList.remove('show');
+      state.activePraise = '';
       if (state.modalMode === 'stageClear') {
         startStage();
       }
@@ -1788,6 +1860,7 @@
       state.stage = 1;
       state.totalScore = 0;
       state.riskWins = 0;
+      state.activePraise = '';
       saveProgress();
       scoreModal.classList.remove('show');
       startStage();
