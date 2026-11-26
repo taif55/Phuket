@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="th">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Sand Relic | นักโบราณคดีปัดทรายทายเลข</title>
+  <title>Sand Relic | Ancient Digit Excavation</title>
   <style>
     :root {
       --bg-dark: #1c1510;
@@ -49,17 +49,17 @@
       position: relative;
     }
 
-    /* Top Power Bar HUD */
+    /* Top HUD: Power Bar + Star Rank + Lang/Sound */
     .hud {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
       flex: 0 0 auto;
     }
 
     .power-bar-container {
       flex: 1;
-      height: 26px;
+      height: 28px;
       background: var(--panel-bg);
       border: 2px solid var(--stone-border);
       border-radius: 999px;
@@ -86,15 +86,36 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 12px;
+      font-size: 11.5px;
       font-weight: 800;
       color: #fff8e7;
-      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.85);
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
       pointer-events: none;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      padding: 0 10px;
+      padding: 0 8px;
+    }
+
+    .rank-pill {
+      background: var(--panel-bg);
+      border: 1px solid var(--gold);
+      border-radius: 9px;
+      height: 32px;
+      padding: 0 8px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+      color: var(--gold-bright);
+      font-size: 11px;
+      font-weight: 800;
+      white-space: nowrap;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+    }
+
+    .rank-pill:active {
+      transform: scale(0.95);
     }
 
     .icon-btn {
@@ -102,9 +123,11 @@
       border: 1px solid var(--stone-border);
       border-radius: 9px;
       color: var(--gold);
-      width: 38px;
+      min-width: 34px;
       height: 32px;
-      font-size: 17px;
+      padding: 0 6px;
+      font-size: 12px;
+      font-weight: 800;
       cursor: pointer;
       display: flex;
       align-items: center;
@@ -115,12 +138,12 @@
       transform: scale(0.94);
     }
 
-    /* Near Full-Screen Excavation Board */
+    /* Excavation Board */
     .board-wrapper {
       position: relative;
       width: 100%;
       flex: 1 1 auto;
-      min-height: 240px;
+      min-height: 230px;
       border-radius: 14px;
       border: 3px solid var(--stone-border);
       box-shadow: inset 0 0 28px rgba(0, 0, 0, 0.72), 0 6px 18px rgba(0, 0, 0, 0.45);
@@ -149,10 +172,10 @@
       position: absolute;
       top: 8px;
       left: 8px;
-      background: rgba(28, 21, 16, 0.82);
+      background: rgba(28, 21, 16, 0.84);
       border: 1px solid rgba(229, 184, 92, 0.55);
       color: var(--gold-bright);
-      font-size: 12px;
+      font-size: 11.5px;
       font-weight: 700;
       padding: 4px 10px;
       border-radius: 999px;
@@ -164,7 +187,7 @@
       position: absolute;
       top: 8px;
       right: 8px;
-      background: rgba(28, 21, 16, 0.82);
+      background: rgba(28, 21, 16, 0.84);
       border: 1px solid rgba(229, 184, 92, 0.45);
       color: var(--sand-light);
       font-size: 11px;
@@ -174,7 +197,36 @@
       pointer-events: none;
     }
 
-    /* Input Slots & Action Bar */
+    .status-banner {
+      position: absolute;
+      bottom: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(24, 17, 12, 0.86);
+      border: 1px solid rgba(90, 70, 50, 0.8);
+      color: var(--text-main);
+      font-size: 11px;
+      font-weight: 600;
+      padding: 4px 12px;
+      border-radius: 999px;
+      pointer-events: none;
+      white-space: nowrap;
+      max-width: 92%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .status-banner.error {
+      border-color: var(--danger);
+      color: #ff9494;
+    }
+
+    .status-banner.highlight {
+      border-color: var(--gold);
+      color: var(--gold-bright);
+    }
+
+    /* Input Slots, Single Risk Button & Action Bar */
     .control-panel {
       display: flex;
       flex-direction: column;
@@ -195,17 +247,17 @@
     .slots-wrap {
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 5px;
     }
 
     .digit-slot {
-      width: 36px;
+      width: 34px;
       height: 38px;
       border-radius: 8px;
       border: 2px solid var(--stone-border);
       background: #1c1510;
       color: var(--gold-bright);
-      font-size: 20px;
+      font-size: 19px;
       font-weight: 900;
       display: flex;
       align-items: center;
@@ -219,22 +271,34 @@
       transform: scale(1.03);
     }
 
-    .status-text {
+    .mult-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: center;
       flex: 1;
-      font-size: 11px;
+    }
+
+    .mult-btn {
+      height: 38px;
+      min-width: 54px;
+      padding: 0 12px;
+      border-radius: 9px;
+      border: 1.5px solid #6b5235;
+      background: #221912;
       color: var(--text-muted);
-      line-height: 1.25;
-      padding: 0 4px;
+      font-size: 14px;
+      font-weight: 900;
+      cursor: pointer;
+      transition: all 0.12s ease;
+      letter-spacing: 0.5px;
     }
 
-    .status-text.error {
-      color: #ff8080;
-      font-weight: 700;
-    }
-
-    .status-text.highlight {
-      color: var(--gold-bright);
-      font-weight: 700;
+    .mult-btn.active {
+      background: linear-gradient(180deg, #ffd97d 0%, #d4962a 100%);
+      color: #1a1108;
+      border-color: #fff3c4;
+      box-shadow: 0 0 12px rgba(255, 217, 125, 0.65);
+      transform: scale(1.05);
     }
 
     .del-btn {
@@ -259,7 +323,7 @@
       border: none;
       border-radius: 9px;
       height: 38px;
-      padding: 0 14px;
+      padding: 0 12px;
       font-size: 13px;
       font-weight: 800;
       cursor: pointer;
@@ -277,7 +341,7 @@
       transform: scale(0.95);
     }
 
-    /* Compact 0-9 Keypad (2 rows x 5 cols) */
+    /* Compact 0-9 Keypad */
     .keypad {
       display: grid;
       grid-template-columns: repeat(5, 1fr);
@@ -310,17 +374,17 @@
       color: #1a120a;
     }
 
-    /* Win Modal */
+    /* Total Score & Rank Modal */
     .modal-overlay {
       position: fixed;
       inset: 0;
-      background: rgba(15, 10, 6, 0.82);
+      background: rgba(15, 10, 6, 0.85);
       display: none;
       align-items: center;
       justify-content: center;
-      padding: 20px;
+      padding: 16px;
       z-index: 50;
-      backdrop-filter: blur(3px);
+      backdrop-filter: blur(4px);
     }
 
     .modal-overlay.show {
@@ -329,67 +393,126 @@
 
     .modal-card {
       width: 100%;
-      max-width: 340px;
-      background: linear-gradient(180deg, #35281c 0%, #221912 100%);
+      max-width: 360px;
+      background: linear-gradient(180deg, #35281c 0%, #201710 100%);
       border: 2px solid var(--gold);
       border-radius: 18px;
-      padding: 22px 18px;
+      padding: 18px 16px;
       text-align: center;
-      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.7);
+      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.75);
     }
 
-    .modal-stars {
-      font-size: 32px;
-      letter-spacing: 6px;
-      margin-bottom: 6px;
+    .modal-rank-stars {
+      font-size: 24px;
+      letter-spacing: 3px;
+      margin-bottom: 2px;
     }
 
-    .modal-title {
-      font-size: 20px;
+    .modal-rank-name {
+      font-size: 15px;
       font-weight: 800;
       color: var(--gold-bright);
-      margin: 0 0 6px;
+      margin-bottom: 8px;
     }
 
-    .modal-sub {
-      font-size: 13px;
+    .total-score-box {
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid rgba(229, 184, 92, 0.45);
+      border-radius: 12px;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+
+    .total-score-box small {
+      display: block;
+      font-size: 11px;
       color: var(--text-muted);
-      margin: 0 0 14px;
+      margin-bottom: 2px;
+    }
+
+    .total-score-val {
+      font-size: 28px;
+      font-weight: 900;
+      color: var(--gold-bright);
+      line-height: 1.1;
+    }
+
+    .stage-delta {
+      font-size: 12px;
+      font-weight: 700;
+      margin-top: 4px;
+      color: var(--success);
+    }
+
+    .rank-progress-wrap {
+      margin-bottom: 12px;
+      text-align: left;
+    }
+
+    .rank-progress-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+      gap: 6px;
+    }
+
+    .rank-progress-bar {
+      width: 100%;
+      height: 8px;
+      background: #17110c;
+      border-radius: 999px;
+      overflow: hidden;
+      border: 1px solid var(--stone-border);
+    }
+
+    .rank-progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #c98a2c 0%, #ffd97d 100%);
+      border-radius: 999px;
+      transition: width 0.3s ease;
     }
 
     .modal-metrics {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      margin-bottom: 16px;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      margin-bottom: 14px;
     }
 
     .metric-item {
       background: rgba(0, 0, 0, 0.25);
       border: 1px solid var(--stone-border);
       border-radius: 10px;
-      padding: 8px;
+      padding: 7px 4px;
     }
 
     .metric-item small {
       display: block;
-      font-size: 11px;
+      font-size: 10px;
       color: var(--text-muted);
+      margin-bottom: 2px;
     }
 
     .metric-item strong {
-      font-size: 18px;
+      font-size: 14px;
       color: var(--text-main);
     }
 
+    .modal-actions {
+      display: flex;
+      gap: 8px;
+    }
+
     .next-btn {
-      width: 100%;
+      flex: 1;
       background: linear-gradient(180deg, #f0c76e 0%, #c0882e 100%);
       color: #1c1309;
       border: none;
       border-radius: 12px;
-      padding: 12px;
-      font-size: 15px;
+      padding: 11px;
+      font-size: 14px;
       font-weight: 800;
       cursor: pointer;
     }
@@ -397,80 +520,331 @@
     .next-btn:active {
       transform: scale(0.97);
     }
+
+    .reset-btn {
+      background: #332419;
+      color: var(--text-muted);
+      border: 1px solid var(--stone-border);
+      border-radius: 12px;
+      padding: 0 12px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .reset-btn:active {
+      transform: scale(0.96);
+    }
   </style>
 </head>
 <body>
   <div class="app">
-    <!-- Top Power Bar HUD -->
+    <!-- Top HUD: Power Bar + Star Rank + Lang/Sound -->
     <div class="hud">
       <div class="power-bar-container">
         <div class="power-bar-fill" id="powerBarFill"></div>
         <div class="power-bar-text" id="powerBarText">1,000</div>
       </div>
-      <button class="icon-btn" id="soundBtn" title="เปิด/ปิดเสียง">🔊</button>
+      <button class="rank-pill" id="rankPill" type="button" title="Total Score & Rank">
+        <span id="hudStars">⭐</span>
+        <span id="hudTotalScore">0</span>
+      </button>
+      <button class="icon-btn" id="langBtn" type="button" title="Switch Language">TH</button>
+      <button class="icon-btn" id="soundBtn" type="button" title="Toggle Sound">🔊</button>
     </div>
 
-    <!-- Near Full-Screen Excavation Board -->
+    <!-- Excavation Board -->
     <div class="board-wrapper" id="boardWrapper">
       <canvas id="stoneCanvas"></canvas>
       <canvas id="sandCanvas"></canvas>
       <canvas id="fxCanvas"></canvas>
-      <div class="board-badge" id="digitBadge">🔍 หาเลข 2 ตัว</div>
-      <div class="sand-meter" id="sandPercentDisplay">เปิดทราย 0%</div>
+      <div class="board-badge" id="digitBadge">Stage 1 · Find 2 Digits</div>
+      <div class="sand-meter" id="sandPercentDisplay">Cleared 0%</div>
+      <div class="status-banner" id="statusBanner">Brush sand to find 2 digits (any order)</div>
     </div>
 
-    <!-- Input Slots & 0-9 Keypad -->
+    <!-- Input Slots, Single Risk Button & 0-9 Keypad -->
     <div class="control-panel">
       <div class="input-bar">
         <div class="slots-wrap" id="slotsWrap"></div>
-        <div class="status-text" id="statusText">ปัดทรายหาตัวเลข (สลับลำดับได้)</div>
-        <button class="del-btn" id="delBtn" title="ลบ">⌫</button>
-        <button class="confirm-btn" id="confirmBtn" disabled>ส่งคำตอบ</button>
+        <div class="mult-wrap">
+          <button class="mult-btn" id="riskMultBtn" type="button">x2</button>
+        </div>
+        <button class="del-btn" id="delBtn" type="button" title="Delete">⌫</button>
+        <button class="confirm-btn" id="confirmBtn" type="button" disabled>Submit</button>
       </div>
 
       <div class="keypad" id="keypad"></div>
     </div>
   </div>
 
-  <!-- Stage Clear Modal -->
-  <div class="modal-overlay" id="winModal">
+  <!-- Total Score & Rank Summary Modal -->
+  <div class="modal-overlay" id="scoreModal">
     <div class="modal-card">
-      <div class="modal-stars" id="modalStars">⭐⭐⭐</div>
-      <h2 class="modal-title" id="modalTitle">ถอดรหัสศิลาสำเร็จ!</h2>
-      <p class="modal-sub" id="modalSub">ระดับความสมบูรณ์: Museum Grade</p>
-      <div class="modal-metrics">
-        <div class="metric-item">
-          <small>คะแนนที่ได้รับ</small>
-          <strong id="modalEarned">+850</strong>
+      <div class="modal-rank-stars" id="modalRankStars">⭐</div>
+      <div class="modal-rank-name" id="modalRankName">1★ Novice</div>
+
+      <div class="total-score-box">
+        <small id="lblTotalScore">Total Accumulated Score</small>
+        <div class="total-score-val" id="modalTotalScore">0</div>
+        <div class="stage-delta" id="modalStageDelta"></div>
+      </div>
+
+      <div class="rank-progress-wrap">
+        <div class="rank-progress-labels">
+          <span id="lblRankLeft">0</span>
+          <span id="lblRankRight">3,500 pts to Explorer</span>
         </div>
-        <div class="metric-item">
-          <small>เปิดทรายไป</small>
-          <strong id="modalSand">15%</strong>
+        <div class="rank-progress-bar">
+          <div class="rank-progress-fill" id="rankProgressFill" style="width: 0%"></div>
         </div>
       </div>
-      <button class="next-btn" id="nextStageBtn">ขุดค้นด่านต่อไป →</button>
+
+      <div class="modal-metrics">
+        <div class="metric-item">
+          <small id="lblMetricStage">Stage</small>
+          <strong id="modalMetricStage">1</strong>
+        </div>
+        <div class="metric-item">
+          <small id="lblMetricRisk">Risk x Wins</small>
+          <strong id="modalMetricRisk">0</strong>
+        </div>
+        <div class="metric-item">
+          <small id="lblMetricTier">Tier</small>
+          <strong id="modalMetricTier">1</strong>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="reset-btn" id="resetSaveBtn" type="button">Reset</button>
+        <button class="next-btn" id="modalPrimaryBtn" type="button">Next Stage →</button>
+      </div>
     </div>
   </div>
 
   <script>
     // ==========================================
-    // 1. Game Configuration & State
+    // 1. Localization (EN Default, Instant TH if Thai Player)
     // ==========================================
+    const I18N = {
+      en: {
+        switchBtn: 'TH',
+        stageBadge: (stage, count) => `Stage ${stage} · Find ${count} Digits`,
+        sandPct: (pct) => `Cleared ${pct}%`,
+        submit: 'Submit',
+        statusDefault: (count) => `Brush sand to find ${count} digits (any order)`,
+        statusRiskOn: (mult) => `Risk x${mult} ON! Exact order required (Miss = +0 stage pts)`,
+        statusReady: 'Ready! Tap "Submit" to check',
+        statusReadyRisk: (mult) => `Ready! Submit for exact-order x${mult}`,
+        statusMore: (left) => `Enter ${left} more digit${left > 1 ? 's' : ''}`,
+        statusWrong: (tried, pen) => `"${tried}" is incorrect! -${pen} pts`,
+        statusWinWind: 'Correct! Wind is clearing the stone tablet...',
+        barOut: (ans) => `🌪️ Out of power! Answer [ ${ans} ]`,
+        barRiskFail: (ans) => `💥 Miss on Risk! Answer [ ${ans} ] (+0 stage pts)`,
+        barResetting: '🌪️ Sandstorm incoming! New digits...',
+        barWin: (ans) => `✨ Correct! Answer [ ${ans} ]`,
+        barWinMult: (mult, pts) => `🔥 Exact Order x${mult}! +${pts}`,
+        totalScoreLabel: 'Total Accumulated Score',
+        currentStageLabel: 'Stage',
+        riskWinsLabel: 'Risk x Wins',
+        tierLabel: 'Rank Tier',
+        nextStageBtn: 'Next Stage →',
+        resumeBtn: 'Resume Excavation',
+        resetBtn: 'Reset',
+        confirmReset: 'Reset all progress and restart from Stage 1?',
+        deltaWin: (earned) => `Stage +${earned} pts`,
+        deltaSummary: 'Toggle x2 / x3 for exact-order bonus; miss = +0 stage pts.',
+        rankNext: (pts, name) => `${pts} pts to ${name}`,
+        rankEndless: (pts, tierNum) => `${pts} pts to Professor ${toRoman(tierNum + 1)}`
+      },
+      th: {
+        switchBtn: 'EN',
+        stageBadge: (stage, count) => `ด่าน ${stage} · หาเลข ${count} ตัว`,
+        sandPct: (pct) => `เปิดทราย ${pct}%`,
+        submit: 'ส่งคำตอบ',
+        statusDefault: (count) => `ปัดทรายหาเลขให้ครบ ${count} ตัว (สลับลำดับได้)`,
+        statusRiskOn: (mult) => `เปิดโหมดลุ้น x${mult}! ต้องเรียงตรงลำดับ (พลาดได้ +0 แต้มด่าน)`,
+        statusReady: 'ครบแล้ว! กดปุ่ม "ส่งคำตอบ" ได้เลย',
+        statusReadyRisk: (mult) => `ครบแล้ว! กดส่งเพื่อลุ้นตรงลำดับ x${mult}`,
+        statusMore: (left) => `กดเพิ่มอีก ${left} ตัว`,
+        statusWrong: (tried, pen) => `ชุดเลข "${tried}" ยังไม่ถูก! หัก -${pen} คะแนน`,
+        statusWinWind: 'ถูกต้อง! ลมกำลังพัดเปิดแผ่นศิลาทั้งหมด...',
+        barOut: (ans) => `🌪️ พลังหมด! เฉลย [ ${ans} ]`,
+        barRiskFail: (ans) => `💥 พลาดโหมดลุ้น! เฉลย [ ${ans} ] (ด่านนี้ +0 แต้ม)`,
+        barResetting: '🌪️ พายุทรายพัดทับ เปลี่ยนเลขใหม่!',
+        barWin: (ans) => `✨ ถูกต้อง! เฉลย [ ${ans} ]`,
+        barWinMult: (mult, pts) => `🔥 ตรงลำดับ x${mult}! +${pts}`,
+        totalScoreLabel: 'คะแนนรวมสะสม',
+        currentStageLabel: 'ด่านปัจจุบัน',
+        riskWinsLabel: 'ลุ้น x สำเร็จ',
+        tierLabel: 'ขั้นยศ',
+        nextStageBtn: 'ขุดค้นด่านต่อไป →',
+        resumeBtn: 'กลับสู่การขุดค้น',
+        resetBtn: 'รีเซ็ต',
+        confirmReset: 'ต้องการล้างคะแนนและกลับไปเริ่มด่าน 1 ใหม่ใช่ไหม?',
+        deltaWin: (earned) => `ด่านนี้ +${earned} คะแนน`,
+        deltaSummary: 'กด x2 / x3 ลุ้นเรียงตรงลำดับ (พลาดได้ +0 แต้มด่าน ไม่หักแต้มรวม)',
+        rankNext: (pts, name) => `อีก ${pts} แต้ม ถึง ${name}`,
+        rankEndless: (pts, tierNum) => `อีก ${pts} แต้ม ถึง ศาสตราจารย์ ขั้นที่ ${tierNum + 1}`
+      }
+    };
+
+    function toRoman(num) {
+      const romans = [
+        [1000, 'M'], [900, 'CM'], [500, 'D'], [400, 'CD'],
+        [100, 'C'], [90, 'XC'], [50, 'L'], [40, 'XL'],
+        [10, 'X'], [9, 'IX'], [5, 'V'], [4, 'IV'], [1, 'I']
+      ];
+      let n = Math.max(1, Math.floor(num));
+      let out = '';
+      for (const [val, sym] of romans) {
+        while (n >= val) {
+          out += sym;
+          n -= val;
+        }
+      }
+      return out;
+    }
+
+    function isThaiPlayer() {
+      const langs = navigator.languages && navigator.languages.length
+        ? navigator.languages
+        : [navigator.language || ''];
+      const hasThaiLang = langs.some(l => String(l || '').toLowerCase().startsWith('th'));
+      if (hasThaiLang) return true;
+
+      try {
+        const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
+        if (tz === 'Asia/Bangkok') return true;
+      } catch (err) {
+        // Ignore timezone error
+      }
+      return false;
+    }
+
+    // ==========================================
+    // 2. Rank Tiers + Endless Professor Tiers
+    // ==========================================
+    const BASE_RANKS = [
+      { tier: 1, stars: 1, minScore: 0,     en: 'Novice',            th: 'มือสมัครเล่น' },
+      { tier: 2, stars: 2, minScore: 3500,  en: 'Explorer',          th: 'นักสำรวจ' },
+      { tier: 3, stars: 3, minScore: 9500,  en: 'Specialist',        th: 'ผู้เชี่ยวชาญ' },
+      { tier: 4, stars: 4, minScore: 19000, en: 'Lead Archaeologist', th: 'หัวหน้าคณะสำรวจ' }
+    ];
+    const PROF_START_SCORE = 32000;
+    const PROF_STEP_SCORE = 15000;
+
+    function getRankInfo(score) {
+      if (score < 3500) {
+        return {
+          tier: 1,
+          stars: 1,
+          minScore: 0,
+          nextScore: 3500,
+          isEndless: false,
+          profNum: 0,
+          enName: 'Novice',
+          thName: 'มือสมัครเล่น',
+          enLabel: '1★ Novice',
+          thLabel: '1 ดาว · มือสมัครเล่น',
+          nextEnName: 'Explorer',
+          nextThName: 'นักสำรวจ'
+        };
+      }
+      if (score < 9500) {
+        return {
+          tier: 2,
+          stars: 2,
+          minScore: 3500,
+          nextScore: 9500,
+          isEndless: false,
+          profNum: 0,
+          enName: 'Explorer',
+          thName: 'นักสำรวจ',
+          enLabel: '2★ Explorer',
+          thLabel: '2 ดาว · นักสำรวจ',
+          nextEnName: 'Specialist',
+          nextThName: 'ผู้เชี่ยวชาญ'
+        };
+      }
+      if (score < 19000) {
+        return {
+          tier: 3,
+          stars: 3,
+          minScore: 9500,
+          nextScore: 19000,
+          isEndless: false,
+          profNum: 0,
+          enName: 'Specialist',
+          thName: 'ผู้เชี่ยวชาญ',
+          enLabel: '3★ Specialist',
+          thLabel: '3 ดาว · ผู้เชี่ยวชาญ',
+          nextEnName: 'Lead Archaeologist',
+          nextThName: 'หัวหน้าคณะสำรวจ'
+        };
+      }
+      if (score < PROF_START_SCORE) {
+        return {
+          tier: 4,
+          stars: 4,
+          minScore: 19000,
+          nextScore: PROF_START_SCORE,
+          isEndless: false,
+          profNum: 0,
+          enName: 'Lead Archaeologist',
+          thName: 'หัวหน้าคณะสำรวจ',
+          enLabel: '4★ Lead Archaeologist',
+          thLabel: '4 ดาว · หัวหน้าคณะสำรวจ',
+          nextEnName: 'Professor I',
+          nextThName: 'ศาสตราจารย์ ขั้นที่ 1'
+        };
+      }
+
+      const profIndex = Math.floor((score - PROF_START_SCORE) / PROF_STEP_SCORE);
+      const profNum = profIndex + 1;
+      const minScore = PROF_START_SCORE + profIndex * PROF_STEP_SCORE;
+      const nextScore = minScore + PROF_STEP_SCORE;
+      const roman = toRoman(profNum);
+
+      return {
+        tier: 5 + profIndex,
+        stars: 5,
+        minScore,
+        nextScore,
+        isEndless: true,
+        profNum,
+        enName: `Professor ${roman}`,
+        thName: `ศาสตราจารย์ ขั้นที่ ${profNum}`,
+        enLabel: `5★ Professor ${roman}`,
+        thLabel: `5 ดาว · ศาสตราจารย์ ขั้นที่ ${profNum}`,
+        nextEnName: `Professor ${toRoman(profNum + 1)}`,
+        nextThName: `ศาสตราจารย์ ขั้นที่ ${profNum + 1}`
+      };
+    }
+
+    // ==========================================
+    // 3. Game Config, State & LocalStorage Save
+    // ==========================================
+    const STORAGE_KEY = 'sand_relic_save_v2';
     const MAX_STAGE_SCORE = 1000;
-    const SANDSTORM_THRESHOLD = 800; // คะแนนลดถึง 800 พายุทรายพัดเริ่มใหม่
-    const MAX_SAND_PENALTY = 800;    // ปัดทรายลดคะแนนตามสัดส่วน
-    const WRONG_GUESS_PENALTY = 80;  // ตอบผิด 1 ครั้ง ลด 80 คะแนน
+    const SANDSTORM_THRESHOLD = 800;
+    const MAX_SAND_PENALTY = 800;
+    const WRONG_GUESS_PENALTY = 80;
     const BRUSH_RADIUS = 24;
 
     const state = {
+      lang: 'en',
+      hasSavedLang: false,
       stage: 1,
       totalScore: 0,
+      riskWins: 0,
       stageScore: MAX_STAGE_SCORE,
-      digitCount: 2,          // 2 หรือ 3 หลัก
-      targetDigits: [],       // เช่น ['4', '7'] หรือ ['1', '8', '5']
-      placedItems: [],        // ตำแหน่ง/ขนาด/องศา ของเลขจริง
-      decoyItems: [],         // ตำแหน่ง/ขนาด/องศา ของเศษเลขแตกหักหลอก
-      enteredDigits: [],      // ตัวเลขที่ผู้เล่นกดเข้ามา
+      digitCount: 2,
+      targetDigits: [],
+      placedItems: [],
+      decoyItems: [],
+      enteredDigits: [],
+      selectedMult: 1,
       clearedPercent: 0,
       wrongGuesses: 0,
       isBrushing: false,
@@ -480,8 +854,52 @@
       lastCalcTime: 0,
       particles: [],
       windActive: false,
-      stageTimers: []
+      stageTimers: [],
+      modalMode: 'summary'
     };
+
+    function loadSavedProgress() {
+      let parsed = null;
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) parsed = JSON.parse(raw);
+      } catch (err) {
+        // Ignore storage errors
+      }
+
+      if (parsed) {
+        if (typeof parsed.stage === 'number' && parsed.stage >= 1) state.stage = Math.floor(parsed.stage);
+        if (typeof parsed.totalScore === 'number' && parsed.totalScore >= 0) state.totalScore = Math.floor(parsed.totalScore);
+        if (typeof parsed.riskWins === 'number' && parsed.riskWins >= 0) state.riskWins = Math.floor(parsed.riskWins);
+        if (parsed.lang === 'th' || parsed.lang === 'en') {
+          state.lang = parsed.lang;
+          state.hasSavedLang = true;
+        }
+        if (typeof parsed.soundEnabled === 'boolean') state.soundEnabled = parsed.soundEnabled;
+      }
+
+      if (!state.hasSavedLang) {
+        state.lang = isThaiPlayer() ? 'th' : 'en';
+      }
+    }
+
+    function saveProgress() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({
+          stage: state.stage,
+          totalScore: state.totalScore,
+          riskWins: state.riskWins,
+          lang: state.lang,
+          soundEnabled: state.soundEnabled
+        }));
+      } catch (err) {
+        // Ignore storage errors
+      }
+    }
+
+    function t() {
+      return I18N[state.lang] || I18N.en;
+    }
 
     // DOM Elements
     const boardWrapper = document.getElementById('boardWrapper');
@@ -494,21 +912,38 @@
 
     const powerBarFill = document.getElementById('powerBarFill');
     const powerBarText = document.getElementById('powerBarText');
+    const rankPill = document.getElementById('rankPill');
+    const hudStars = document.getElementById('hudStars');
+    const hudTotalScore = document.getElementById('hudTotalScore');
+    const langBtn = document.getElementById('langBtn');
+    const soundBtn = document.getElementById('soundBtn');
+
     const sandPercentDisplay = document.getElementById('sandPercentDisplay');
     const digitBadge = document.getElementById('digitBadge');
+    const statusBanner = document.getElementById('statusBanner');
     const slotsWrap = document.getElementById('slotsWrap');
-    const statusText = document.getElementById('statusText');
+    const riskMultBtn = document.getElementById('riskMultBtn');
     const delBtn = document.getElementById('delBtn');
     const confirmBtn = document.getElementById('confirmBtn');
     const keypadEl = document.getElementById('keypad');
-    const soundBtn = document.getElementById('soundBtn');
-    const winModal = document.getElementById('winModal');
-    const modalStars = document.getElementById('modalStars');
-    const modalTitle = document.getElementById('modalTitle');
-    const modalSub = document.getElementById('modalSub');
-    const modalEarned = document.getElementById('modalEarned');
-    const modalSand = document.getElementById('modalSand');
-    const nextStageBtn = document.getElementById('nextStageBtn');
+
+    const scoreModal = document.getElementById('scoreModal');
+    const modalRankStars = document.getElementById('modalRankStars');
+    const modalRankName = document.getElementById('modalRankName');
+    const lblTotalScore = document.getElementById('lblTotalScore');
+    const modalTotalScore = document.getElementById('modalTotalScore');
+    const modalStageDelta = document.getElementById('modalStageDelta');
+    const lblRankLeft = document.getElementById('lblRankLeft');
+    const lblRankRight = document.getElementById('lblRankRight');
+    const rankProgressFill = document.getElementById('rankProgressFill');
+    const lblMetricStage = document.getElementById('lblMetricStage');
+    const modalMetricStage = document.getElementById('modalMetricStage');
+    const lblMetricRisk = document.getElementById('lblMetricRisk');
+    const modalMetricRisk = document.getElementById('modalMetricRisk');
+    const lblMetricTier = document.getElementById('lblMetricTier');
+    const modalMetricTier = document.getElementById('modalMetricTier');
+    const resetSaveBtn = document.getElementById('resetSaveBtn');
+    const modalPrimaryBtn = document.getElementById('modalPrimaryBtn');
 
     let boardW = 360;
     let boardH = 420;
@@ -525,7 +960,7 @@
     }
 
     // ==========================================
-    // 2. Web Audio API (ASMR Sand & FX Synth)
+    // 4. Web Audio API (ASMR Sand & FX Synth)
     // ==========================================
     let audioCtx = null;
     let noiseBuffer = null;
@@ -640,12 +1075,12 @@
     }
 
     // ==========================================
-    // 3. Stage Setup & Scattered Digit Placement
+    // 5. Stage Setup & Scattered Digit Placement
     // ==========================================
     function resizeCanvases() {
       const rect = boardWrapper.getBoundingClientRect();
       boardW = Math.max(280, Math.floor(rect.width));
-      boardH = Math.max(240, Math.floor(rect.height));
+      boardH = Math.max(230, Math.floor(rect.height));
 
       [stoneCanvas, sandCanvas, fxCanvas].forEach(c => {
         c.width = boardW;
@@ -966,28 +1401,40 @@
       confirmBtn.disabled = state.enteredDigits.length !== state.digitCount || state.isLocked;
     }
 
-    function startStage(isNewStage = true) {
+    function applyLanguageUI() {
+      document.documentElement.lang = state.lang;
+      langBtn.textContent = t().switchBtn;
+      soundBtn.textContent = state.soundEnabled ? '🔊' : '🔇';
+      confirmBtn.textContent = t().submit;
+      digitBadge.textContent = t().stageBadge(state.stage, state.digitCount);
+      sandPercentDisplay.textContent = t().sandPct(Math.round(state.clearedPercent));
+      updateHUD();
+    }
+
+    function startStage() {
       clearStageTimers();
       state.digitCount = getDigitCountForStage(state.stage);
       state.enteredDigits = [];
+      state.selectedMult = 1;
       state.clearedPercent = 0;
       state.wrongGuesses = 0;
       state.stageScore = MAX_STAGE_SCORE;
       state.isLocked = false;
       state.windActive = false;
 
-      digitBadge.textContent = `🔍 หาเลข ${state.digitCount} ตัว`;
+      riskMultBtn.textContent = `x${state.digitCount}`;
+      riskMultBtn.classList.remove('active');
 
       generateScatteredDigits(state.digitCount);
       drawStoneTablet();
       fillSandLayer();
       renderSlots();
-      updateHUD();
-      setStatus(`ปัดทรายหาเลขให้ครบ ${state.digitCount} ตัว (สลับลำดับได้)`, '');
+      applyLanguageUI();
+      setStatus(t().statusDefault(state.digitCount), '');
     }
 
     // ==========================================
-    // 4. Brushing & Percentage Calculation
+    // 6. Brushing & Percentage Calculation
     // ==========================================
     function getPointerPos(e) {
       const rect = sandCanvas.getBoundingClientRect();
@@ -1053,7 +1500,7 @@
       updateHUD();
 
       if (state.stageScore <= SANDSTORM_THRESHOLD && !state.isLocked) {
-        triggerSandstormReset();
+        triggerSandstormReset(false);
       }
     }
 
@@ -1065,12 +1512,16 @@
       powerBarFill.style.width = `${barPercent}%`;
       powerBarFill.classList.toggle('low', barPercent <= 35);
       powerBarText.textContent = `${state.stageScore.toLocaleString()}`;
-      sandPercentDisplay.textContent = `เปิดทราย ${Math.round(state.clearedPercent)}%`;
+      sandPercentDisplay.textContent = t().sandPct(Math.round(state.clearedPercent));
+
+      const rankInfo = getRankInfo(state.totalScore);
+      hudStars.textContent = '⭐'.repeat(rankInfo.stars);
+      hudTotalScore.textContent = state.totalScore.toLocaleString();
     }
 
     function setStatus(msg, type = '') {
-      statusText.textContent = msg;
-      statusText.className = `status-text ${type}`;
+      statusBanner.textContent = msg;
+      statusBanner.className = `status-banner ${type}`;
     }
 
     sandCanvas.addEventListener('pointerdown', (e) => {
@@ -1111,9 +1562,9 @@
     sandCanvas.addEventListener('pointercancel', endBrushing);
 
     // ==========================================
-    // 5. Sandstorm Reset (When Score Hits 800)
+    // 7. Sandstorm Reset (Out of Power or Risk Miss = +0 Stage Pts)
     // ==========================================
-    function triggerSandstormReset() {
+    function triggerSandstormReset(isRiskFail = false) {
       clearStageTimers();
       state.isLocked = true;
       state.isBrushing = false;
@@ -1125,38 +1576,64 @@
 
       sandCtx.clearRect(0, 0, boardW, boardH);
       state.clearedPercent = 100;
-      sandPercentDisplay.textContent = 'เปิดทราย 100%';
+      sandPercentDisplay.textContent = t().sandPct(100);
 
       const answerStr = state.targetDigits.join(' - ');
       state.windActive = true;
       powerBarFill.style.width = '0%';
       powerBarFill.classList.add('low');
-      powerBarText.textContent = `🌪️ พลังหมด! เฉลย [ ${answerStr} ]`;
-      setStatus(`พายุทรายพัดเฉลยเลข ${answerStr} กำลังสุ่มใหม่...`, 'error');
 
-      // ค้างให้ดูเฉลยและลมพัดเพิ่มจากเดิม 2 วินาที (รวมเป็น 3.8 วินาที)
+      if (isRiskFail) {
+        powerBarText.textContent = t().barRiskFail(answerStr);
+        setStatus(t().barRiskFail(answerStr), 'error');
+      } else {
+        powerBarText.textContent = t().barOut(answerStr);
+        setStatus(t().barOut(answerStr), 'error');
+      }
+
       scheduleStageTimer(() => {
-        powerBarText.textContent = '🌪️ พายุทรายพัดทับ เปลี่ยนเลขใหม่!';
+        powerBarText.textContent = t().barResetting;
         scheduleStageTimer(() => {
-          startStage(false);
+          startStage();
         }, 700);
-      }, 3800);
+      }, 3600);
     }
 
     // ==========================================
-    // 6. Keypad 0-9 & Order-Independent Matching
+    // 8. Keypad, Single Risk Button & Submit
     // ==========================================
     function buildKeypad() {
       const order = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'];
       keypadEl.innerHTML = '';
       order.forEach(numStr => {
         const btn = document.createElement('button');
+        btn.type = 'button';
         btn.className = 'key-btn';
         btn.textContent = numStr;
         btn.addEventListener('click', () => handleDigitPress(numStr));
         keypadEl.appendChild(btn);
       });
     }
+
+    function toggleRiskMultiplier() {
+      if (state.isLocked) return;
+      initAudio();
+
+      const targetMult = state.digitCount === 3 ? 3 : 2;
+      if (state.selectedMult === targetMult) {
+        state.selectedMult = 1;
+        riskMultBtn.classList.remove('active');
+        playTone(380, 0.05, 'sine', 0.05);
+        setStatus(t().statusDefault(state.digitCount), '');
+      } else {
+        state.selectedMult = targetMult;
+        riskMultBtn.classList.add('active');
+        playTone(660, 0.07, 'triangle', 0.08);
+        setStatus(t().statusRiskOn(targetMult), 'highlight');
+      }
+    }
+
+    riskMultBtn.addEventListener('click', toggleRiskMultiplier);
 
     function handleDigitPress(numStr) {
       if (state.isLocked) return;
@@ -1168,9 +1645,12 @@
       renderSlots();
 
       if (state.enteredDigits.length === state.digitCount) {
-        setStatus('ครบแล้ว! กดปุ่ม "ส่งคำตอบ" ได้เลย', 'highlight');
+        setStatus(
+          state.selectedMult > 1 ? t().statusReadyRisk(state.selectedMult) : t().statusReady,
+          'highlight'
+        );
       } else {
-        setStatus(`กดเพิ่มอีก ${state.digitCount - state.enteredDigits.length} ตัว`, '');
+        setStatus(t().statusMore(state.digitCount - state.enteredDigits.length), '');
       }
     }
 
@@ -1180,16 +1660,21 @@
       playTone(320, 0.04, 'sine', 0.05);
       state.enteredDigits.pop();
       renderSlots();
-      setStatus(`ปัดทรายหาเลขให้ครบ ${state.digitCount} ตัว (สลับลำดับได้)`, '');
+      setStatus(t().statusDefault(state.digitCount), '');
     });
 
     function submitGuess() {
       if (state.isLocked || state.enteredDigits.length !== state.digitCount) return;
 
-      const userSorted = [...state.enteredDigits].sort().join('');
-      const targetSorted = [...state.targetDigits].sort().join('');
+      const isOrderRiskMode =
+        state.selectedMult === state.digitCount &&
+        (state.digitCount === 2 || state.digitCount === 3);
 
-      if (userSorted === targetSorted) {
+      const isMatch = isOrderRiskMode
+        ? state.enteredDigits.join('') === state.targetDigits.join('')
+        : [...state.enteredDigits].sort().join('') === [...state.targetDigits].sort().join('');
+
+      if (isMatch) {
         clearStageTimers();
         state.isLocked = true;
         state.isBrushing = false;
@@ -1198,69 +1683,136 @@
 
         sandCtx.clearRect(0, 0, boardW, boardH);
         state.clearedPercent = 100;
-        sandPercentDisplay.textContent = 'เปิดทราย 100%';
+        sandPercentDisplay.textContent = t().sandPct(100);
         state.windActive = true;
 
         playWinSound();
         playSandstormSound();
 
-        const earned = state.stageScore;
-        state.totalScore += earned;
-        updateHUD();
-        powerBarText.textContent = `✨ ถูกต้อง! เฉลย [ ${state.targetDigits.join(' - ')} ]`;
-        setStatus('ถูกต้อง! ลมกำลังพัดเปิดแผ่นศิลาทั้งหมด...', 'highlight');
+        const mult = isOrderRiskMode ? state.selectedMult : 1;
+        const earned = state.stageScore * mult;
 
-        // ให้ลมพัดเปิดให้เห็นทั้งหมดก่อนขึ้นหน้าต่างผ่านด่าน
+        if (mult > 1) state.riskWins++;
+        state.totalScore += earned;
+        state.stage++;
+        saveProgress();
+        updateHUD();
+
+        const answerStr = state.targetDigits.join(' - ');
+        powerBarText.textContent = mult > 1
+          ? t().barWinMult(mult, earned.toLocaleString())
+          : t().barWin(answerStr);
+        setStatus(t().statusWinWind, 'highlight');
+
         scheduleStageTimer(() => {
           state.windActive = false;
-          showWinModal(earned);
+          openScoreModal('stageClear', earned);
         }, 1800);
+      } else if (isOrderRiskMode) {
+        // Risk miss: +0 stage points, no deduction to totalScore, sandstorm resets current stage
+        state.stageScore = 0;
+        updateHUD();
+        triggerSandstormReset(true);
       } else {
         state.wrongGuesses++;
         const triedStr = state.enteredDigits.join('');
         state.enteredDigits = [];
         renderSlots();
         playWrongSound();
-        setStatus(`ชุดเลข "${triedStr}" ยังไม่ถูก! หัก -${WRONG_GUESS_PENALTY} คะแนน`, 'error');
+        setStatus(t().statusWrong(triedStr, WRONG_GUESS_PENALTY), 'error');
         recalculateScore();
       }
     }
 
-    function showWinModal(earned) {
-      let stars = '⭐';
-      let rank = 'ระดับ: นักสำรวจฝึกหัด';
-      if (earned >= 930) {
-        stars = '⭐⭐⭐';
-        rank = 'ระดับ: Museum Grade (สมบูรณ์แบบ!)';
-      } else if (earned >= 860) {
-        stars = '⭐⭐';
-        rank = 'ระดับ: นักโบราณคดีมืออาชีพ';
+    // ==========================================
+    // 9. Total Score & Rank Summary Modal
+    // ==========================================
+    function openScoreModal(mode = 'summary', earned = 0) {
+      state.modalMode = mode;
+      const info = getRankInfo(state.totalScore);
+
+      modalRankStars.textContent = '⭐'.repeat(info.stars);
+      modalRankName.textContent = state.lang === 'th' ? info.thLabel : info.enLabel;
+      lblTotalScore.textContent = t().totalScoreLabel;
+      modalTotalScore.textContent = state.totalScore.toLocaleString();
+
+      if (mode === 'stageClear') {
+        modalStageDelta.textContent = t().deltaWin(earned.toLocaleString());
+        modalPrimaryBtn.textContent = t().nextStageBtn;
+      } else {
+        modalStageDelta.textContent = t().deltaSummary;
+        modalPrimaryBtn.textContent = t().resumeBtn;
       }
 
-      modalStars.textContent = stars;
-      modalTitle.textContent = `พบเลข [ ${state.targetDigits.join(' - ')} ] แล้ว!`;
-      modalSub.textContent = rank;
-      modalEarned.textContent = `+${earned.toLocaleString()}`;
-      modalSand.textContent = `${Math.round(state.clearedPercent)}%`;
-      winModal.classList.add('show');
+      const span = Math.max(1, info.nextScore - info.minScore);
+      const prog = Math.max(0, Math.min(100, ((state.totalScore - info.minScore) / span) * 100));
+      const needed = Math.max(0, info.nextScore - state.totalScore);
+      lblRankLeft.textContent = `${info.minScore.toLocaleString()}`;
+
+      if (info.isEndless) {
+        lblRankRight.textContent = t().rankEndless(needed.toLocaleString(), info.profNum);
+      } else {
+        const nextName = state.lang === 'th' ? info.nextThName : info.nextEnName;
+        lblRankRight.textContent = t().rankNext(needed.toLocaleString(), nextName);
+      }
+      rankProgressFill.style.width = `${prog}%`;
+
+      lblMetricStage.textContent = t().currentStageLabel;
+      modalMetricStage.textContent = state.stage.toLocaleString();
+      lblMetricRisk.textContent = t().riskWinsLabel;
+      modalMetricRisk.textContent = state.riskWins.toLocaleString();
+      lblMetricTier.textContent = t().tierLabel;
+      modalMetricTier.textContent = info.isEndless
+        ? `P-${toRoman(info.profNum)}`
+        : `${info.tier}`;
+      resetSaveBtn.textContent = t().resetBtn;
+
+      scoreModal.classList.add('show');
     }
 
     confirmBtn.addEventListener('click', submitGuess);
 
-    nextStageBtn.addEventListener('click', () => {
-      winModal.classList.remove('show');
-      state.stage++;
-      startStage(true);
+    modalPrimaryBtn.addEventListener('click', () => {
+      scoreModal.classList.remove('show');
+      if (state.modalMode === 'stageClear') {
+        startStage();
+      }
+    });
+
+    rankPill.addEventListener('click', () => {
+      openScoreModal('summary');
+    });
+
+    resetSaveBtn.addEventListener('click', () => {
+      if (!confirm(t().confirmReset)) return;
+      state.stage = 1;
+      state.totalScore = 0;
+      state.riskWins = 0;
+      saveProgress();
+      scoreModal.classList.remove('show');
+      startStage();
+    });
+
+    langBtn.addEventListener('click', () => {
+      state.lang = state.lang === 'en' ? 'th' : 'en';
+      state.hasSavedLang = true;
+      saveProgress();
+      applyLanguageUI();
+      setStatus(t().statusDefault(state.digitCount), '');
+      if (scoreModal.classList.contains('show')) {
+        openScoreModal(state.modalMode);
+      }
     });
 
     soundBtn.addEventListener('click', () => {
       state.soundEnabled = !state.soundEnabled;
+      saveProgress();
       soundBtn.textContent = state.soundEnabled ? '🔊' : '🔇';
       if (!state.soundEnabled) stopBrushSound();
     });
 
     // ==========================================
-    // 7. Particle & Sandstorm Animation Loop
+    // 10. Particle & Sandstorm Animation Loop
     // ==========================================
     function animateFX() {
       fxCtx.clearRect(0, 0, boardW, boardH);
@@ -1307,12 +1859,13 @@
     }
 
     // ==========================================
-    // 8. Initialize Game
+    // 11. Initialize Game
     // ==========================================
     window.addEventListener('load', () => {
+      loadSavedProgress();
       buildKeypad();
       resizeCanvases();
-      startStage(true);
+      startStage();
       animateFX();
     });
 
